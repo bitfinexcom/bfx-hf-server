@@ -1,0 +1,14 @@
+.idea
+dist/*
+node_modules
+npm-debug.log
+.vscode
+*.swo
+*.swp
+.DS_Store
+db/*.sql
+.env
+scripts/*
+!db/.keep
+db/*
+package-lock.json
