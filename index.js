@@ -17,6 +17,8 @@ const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
 
 module.exports = ({
+  bfxRestURL,
+  bfxWSURL,
   uiDBPath,
   algoDBPath,
   hfBitfinexDBPath,
@@ -27,15 +29,22 @@ module.exports = ({
   hfDSBinancePort = 23522,
   hfDSBitfinexPort = 23521
 }) => {
-  const dbBitfinex = new HFDB({
-    schema: HFDBBitfinexSchema,
-    adapter: HFDBLowDBAdapter({ dbPath: hfBitfinexDBPath })
-  })
+  let dbBitfinex = null
+  let dbBinance = null
 
-  const dbBinance = new HFDB({
-    schema: HFDBBinanceSchema,
-    adapter: HFDBLowDBAdapter({ dbPath: hfBinanceDBPath })
-  })
+  if (hfBitfinexDBPath && hfDSBitfinexPort) {
+    dbBitfinex = new HFDB({
+      schema: HFDBBitfinexSchema,
+      adapter: HFDBLowDBAdapter({ dbPath: hfBitfinexDBPath })
+    })
+  }
+
+  if (hfBinanceDBPath && hfDSBinancePort) {
+    dbBinance = new HFDB({
+      schema: HFDBBinanceSchema,
+      adapter: HFDBLowDBAdapter({ dbPath: hfBinanceDBPath })
+    })
+  }
 
   const dbHFUI = new HFDB({
     schema: HFDBDummySchema,
@@ -47,15 +56,24 @@ module.exports = ({
     hfLowDBPath: algoDBPath
   })
 
-  const dsBitfinex = new DataServer({
-    port: hfDSBitfinexPort,
-    db: dbBitfinex
-  })
+  let dsBitfinex = null
+  let dsBinance = null
 
-  const dsBinance = new DataServer({
-    port: hfDSBinancePort,
-    db: dbBinance
-  })
+  if (dbBitfinex) {
+    dsBitfinex = new DataServer({
+      port: hfDSBitfinexPort,
+      db: dbBitfinex,
+      restURL: bfxRestURL,
+      wsURL: bfxWSURL
+    })
+  }
+
+  if (dbBinance) {
+    dsBinance = new DataServer({
+      port: hfDSBinancePort,
+      db: dbBinance
+    })
+  }
 
   const exPool = new ExchangePoolServer({
     port: exPoolServerPort
@@ -73,8 +91,15 @@ module.exports = ({
   syncMarkets(dbHFUI, EXAS).then(() => {
     as.open()
     exPool.open()
-    dsBinance.open()
-    dsBitfinex.open()
+
+    if (dsBinance) {
+      dsBinance.open()
+    }
+
+    if (dsBitfinex) {
+      dsBitfinex.open()
+    }
+
     api.open()
   }).catch((e) => {
     capture.exception(e)
