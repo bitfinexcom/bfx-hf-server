@@ -46,14 +46,15 @@ module.exports = ({
     })
   }
 
-  const dbHFUI = new HFDB({
+  const apiDB = new HFDB({
     schema: HFDBDummySchema,
     adapter: HFDBLowDBAdapter({ dbPath: uiDBPath })
   })
 
   const as = new AlgoServer({
     port: algoServerPort,
-    hfLowDBPath: algoDBPath
+    hfLowDBPath: algoDBPath,
+    apiDB,
   })
 
   let dsBitfinex = null
@@ -80,7 +81,7 @@ module.exports = ({
   })
 
   const api = new APIWSServer({
-    db: dbHFUI,
+    db: apiDB,
     port: wsServerPort,
     exPoolURL: `http://localhost:${exPoolServerPort}`,
     algoServerURL: `http://localhost:${algoServerPort}`,
@@ -88,7 +89,7 @@ module.exports = ({
     hfDSBinanceURL: `http://localhost:${hfDSBinancePort}`
   })
 
-  syncMarkets(dbHFUI, EXAS).then(() => {
+  syncMarkets(apiDB, EXAS).then(() => {
     as.open()
     exPool.open()
 
