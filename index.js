@@ -51,6 +51,12 @@ module.exports = ({
     adapter: HFDBLowDBAdapter({ dbPath: uiDBPath })
   })
 
+  const as = new AlgoServer({
+    port: algoServerPort,
+    hfLowDBPath: algoDBPath,
+    apiDB
+  })
+
   let dsBitfinex = null
   let dsBinance = null
 
@@ -84,6 +90,7 @@ module.exports = ({
   })
 
   syncMarkets(apiDB, EXAS).then(() => {
+    as.open()
     exPool.open()
 
     if (dsBinance) {
