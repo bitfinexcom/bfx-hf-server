@@ -4,9 +4,9 @@
 const assert = require('assert')
 const sinon = require('sinon')
 
-const poolInit = require('ex_pool')
-const poolDecrementSubRefCount = require('ex_pool/decrement_sub_ref_count')
-const capture = require('capture')
+const poolInit = require('../../../lib/ex_pool')
+const poolDecrementSubRefCount = require('../../../lib/ex_pool/decrement_sub_ref_count')
+const capture = require('../../../lib/capture')
 
 describe('ex_pool: decrement_sub_ref_count', () => {
   it('decrements the subscription ref count for the exchange/channel pair', () => {

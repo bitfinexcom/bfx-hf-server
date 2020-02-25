@@ -3,8 +3,8 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolAddDataListener = require('ex_pool/add_data_listener')
+const poolInit = require('../../../lib/ex_pool')
+const poolAddDataListener = require('../../../lib/ex_pool/add_data_listener')
 
 describe('ex_pool: add_data_listener', () => {
   it('adds the callback to the internal listeners array', () => {

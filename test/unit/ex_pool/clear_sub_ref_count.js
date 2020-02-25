@@ -3,8 +3,8 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolClearSubRefCount = require('ex_pool/clear_sub_ref_count')
+const poolInit = require('../../../lib/ex_pool')
+const poolClearSubRefCount = require('../../../lib/ex_pool/clear_sub_ref_count')
 
 describe('ex_pool: clear_sub_ref_count', () => {
   it('clears the subscription ref count for the exchange/channel pair', () => {

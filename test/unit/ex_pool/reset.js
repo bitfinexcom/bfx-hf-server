@@ -5,8 +5,8 @@ const sinon = require('sinon')
 const assert = require('assert')
 const _isEmpty = require('lodash/isEmpty')
 
-const poolInit = require('ex_pool')
-const poolReset = require('ex_pool/reset')
+const poolInit = require('../../../lib/ex_pool')
+const poolReset = require('../../../lib/ex_pool/reset')
 
 describe('ex_pool: reset', () => {
   it('closes all exchange client connections', () => {

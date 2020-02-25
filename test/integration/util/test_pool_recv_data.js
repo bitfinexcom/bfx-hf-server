@@ -3,10 +3,10 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolReset = require('ex_pool/reset')
-const poolSubscribe = require('ex_pool/subscribe')
-const poolAddDataListener = require('ex_pool/add_data_listener')
+const poolInit = require('../../../lib/ex_pool')
+const poolReset = require('../../../lib/ex_pool/reset')
+const poolSubscribe = require('../../../lib/ex_pool/subscribe')
+const poolAddDataListener = require('../../../lib/ex_pool/add_data_listener')
 
 module.exports = (done, exID, channels, asserters) => {
   const pool = poolInit()
