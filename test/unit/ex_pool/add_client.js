@@ -4,12 +4,12 @@
 const assert = require('assert')
 const sinon = require('sinon')
 
-const capture = require('capture')
-const poolInit = require('ex_pool')
-const poolReset = require('ex_pool/reset')
-const poolAddClient = require('ex_pool/add_client')
-const poolHasClient = require('ex_pool/has_client')
-const bfx = require('exchange_clients/bitfinex')
+const capture = require('../../../lib/capture')
+const poolInit = require('../../../lib/ex_pool')
+const poolReset = require('../../../lib/ex_pool/reset')
+const poolAddClient = require('../../../lib/ex_pool/add_client')
+const poolHasClient = require('../../../lib/ex_pool/has_client')
+const bfx = require('../../../lib/exchange_clients/bitfinex')
 
 describe('ex_pool: add_client', () => {
   it('validates the exchange id', () => {

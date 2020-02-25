@@ -3,8 +3,8 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolGetSubRefCount = require('ex_pool/get_sub_ref_count')
+const poolInit = require('../../../lib/ex_pool')
+const poolGetSubRefCount = require('../../../lib/ex_pool/get_sub_ref_count')
 
 describe('ex_pool: get_sub_ref_count', () => {
   it('returns the subscription reference count', () => {

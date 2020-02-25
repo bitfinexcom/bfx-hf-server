@@ -3,8 +3,8 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolGetClient = require('ex_pool/get_client')
+const poolInit = require('../../../lib/ex_pool')
+const poolGetClient = require('../../../lib/ex_pool/get_client')
 
 describe('ex_pool: get_client', () => {
   it('returns exchange client by ID', () => {
