@@ -4,11 +4,11 @@
 const sinon = require('sinon')
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolReset = require('ex_pool/reset')
-const poolSubscribe = require('ex_pool/subscribe')
-const chanDataToKey = require('util/chan_data_to_key')
-const bfx = require('exchange_clients/bitfinex')
+const poolInit = require('../../../lib/ex_pool')
+const poolReset = require('../../../lib/ex_pool/reset')
+const poolSubscribe = require('../../../lib/ex_pool/subscribe')
+const chanDataToKey = require('../../../lib/util/chan_data_to_key')
+const bfx = require('../../../lib/exchange_clients/bitfinex')
 
 describe('ex_pool: subscribe', () => {
   const channel = ['trades', 'tBTCUSD']

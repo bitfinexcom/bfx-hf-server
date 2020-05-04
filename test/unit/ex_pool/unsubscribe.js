@@ -4,15 +4,15 @@
 const sinon = require('sinon')
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolReset = require('ex_pool/reset')
-const poolAddClient = require('ex_pool/add_client')
-const poolSubscribe = require('ex_pool/subscribe')
-const poolUnsubscribe = require('ex_pool/unsubscribe')
-const poolGetSubRefCount = require('ex_pool/get_sub_ref_count')
-const chanDataToKey = require('util/chan_data_to_key')
-const bfx = require('exchange_clients/bitfinex')
-const capture = require('capture')
+const poolInit = require('../../../lib/ex_pool')
+const poolReset = require('../../../lib/ex_pool/reset')
+const poolAddClient = require('../../../lib/ex_pool/add_client')
+const poolSubscribe = require('../../../lib/ex_pool/subscribe')
+const poolUnsubscribe = require('../../../lib/ex_pool/unsubscribe')
+const poolGetSubRefCount = require('../../../lib/ex_pool/get_sub_ref_count')
+const chanDataToKey = require('../../../lib/util/chan_data_to_key')
+const bfx = require('../../../lib/exchange_clients/bitfinex')
+const capture = require('../../../lib/capture')
 
 describe('ex_pool: unsubscribe', () => {
   const channel = ['trades', 'tBTCUSD']

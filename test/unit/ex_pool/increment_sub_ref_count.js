@@ -3,9 +3,9 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolGetSubRefCount = require('ex_pool/get_sub_ref_count')
-const poolIncrementSubRefCount = require('ex_pool/increment_sub_ref_count')
+const poolInit = require('../../../lib/ex_pool')
+const poolGetSubRefCount = require('../../../lib/ex_pool/get_sub_ref_count')
+const poolIncrementSubRefCount = require('../../../lib/ex_pool/increment_sub_ref_count')
 
 describe('ex_pool: has_client', () => {
   it('initializes the reference counter with 0 if needed', () => {

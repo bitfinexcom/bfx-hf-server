@@ -6,7 +6,7 @@ const _isArray = require('lodash/isArray')
 const _isObject = require('lodash/isObject')
 const _isFunction = require('lodash/isFunction')
 
-const poolInit = require('ex_pool')
+const poolInit = require('../../../lib/ex_pool')
 
 describe('ex_pool: init', () => {
   it('constructs a pool object', () => {

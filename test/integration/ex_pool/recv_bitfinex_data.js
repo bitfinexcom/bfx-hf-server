@@ -9,4 +9,4 @@ testPoolExRecvData('bitfinex', [
   { wsID: 'tETHUSD' },
   { wsID: 'tLTCUSD' },
   { wsID: 'tEOSUSD' }
-], 20000)
+], 60000)
