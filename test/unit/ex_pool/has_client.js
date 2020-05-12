@@ -3,8 +3,8 @@
 
 const assert = require('assert')
 
-const poolInit = require('ex_pool')
-const poolHasClient = require('ex_pool/has_client')
+const poolInit = require('../../../lib/ex_pool')
+const poolHasClient = require('../../../lib/ex_pool/has_client')
 
 describe('ex_pool: has_client', () => {
   it('returns true if the pool has the requested client', () => {
