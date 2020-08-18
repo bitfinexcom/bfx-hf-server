@@ -6,7 +6,6 @@ const HFDB = require('bfx-hf-models')
 const DataServer = require('bfx-hf-data-server')
 const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
 const { schema: HFDBBitfinexSchema } = require('bfx-hf-ext-plugin-bitfinex')
-const { schema: HFDBBinanceSchema } = require('bfx-hf-ext-plugin-binance')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const EXAS = require('./lib/exchange_clients')
@@ -22,27 +21,17 @@ module.exports = ({
   uiDBPath,
   algoDBPath,
   hfBitfinexDBPath,
-  hfBinanceDBPath,
   algoServerPort = 25223,
   wsServerPort = 45000,
   exPoolServerPort = 25224,
-  hfDSBinancePort = 23522,
   hfDSBitfinexPort = 23521
 }) => {
   let dbBitfinex = null
-  let dbBinance = null
 
   if (hfBitfinexDBPath && hfDSBitfinexPort) {
     dbBitfinex = new HFDB({
       schema: HFDBBitfinexSchema,
       adapter: HFDBLowDBAdapter({ dbPath: hfBitfinexDBPath })
-    })
-  }
-
-  if (hfBinanceDBPath && hfDSBinancePort) {
-    dbBinance = new HFDB({
-      schema: HFDBBinanceSchema,
-      adapter: HFDBLowDBAdapter({ dbPath: hfBinanceDBPath })
     })
   }
 
@@ -58,7 +47,6 @@ module.exports = ({
   })
 
   let dsBitfinex = null
-  let dsBinance = null
 
   if (dbBitfinex) {
     dsBitfinex = new DataServer({
@@ -66,13 +54,6 @@ module.exports = ({
       db: dbBitfinex,
       restURL: bfxRestURL,
       wsURL: bfxWSURL
-    })
-  }
-
-  if (dbBinance) {
-    dsBinance = new DataServer({
-      port: hfDSBinancePort,
-      db: dbBinance
     })
   }
 
@@ -86,16 +67,11 @@ module.exports = ({
     exPoolURL: `http://localhost:${exPoolServerPort}`,
     algoServerURL: `http://localhost:${algoServerPort}`,
     hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`,
-    hfDSBinanceURL: `http://localhost:${hfDSBinancePort}`
   })
 
   syncMarkets(apiDB, EXAS).then(() => {
     as.open()
     exPool.open()
-
-    if (dsBinance) {
-      dsBinance.open()
-    }
 
     if (dsBitfinex) {
       dsBitfinex.open()
