@@ -66,7 +66,7 @@ module.exports = ({
     port: wsServerPort,
     exPoolURL: `http://localhost:${exPoolServerPort}`,
     algoServerURL: `http://localhost:${algoServerPort}`,
-    hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`,
+    hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`
   })
 
   syncMarkets(apiDB, EXAS).then(() => {
