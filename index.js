@@ -43,7 +43,9 @@ module.exports = ({
   const as = new AlgoServer({
     port: algoServerPort,
     hfLowDBPath: algoDBPath,
-    apiDB
+    apiDB,
+    wsURL: bfxWSURL,
+    restURL: bfxRestURL
   })
 
   let dsBitfinex = null
@@ -66,10 +68,13 @@ module.exports = ({
     port: wsServerPort,
     exPoolURL: `http://localhost:${exPoolServerPort}`,
     algoServerURL: `http://localhost:${algoServerPort}`,
-    hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`
+    hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`,
+    restURL: bfxRestURL,
+    wsURL: bfxWSURL
   })
 
-  syncMarkets(apiDB, EXAS).then(() => {
+  const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
+  syncMarkets(apiDB, EXAS, opts).then(() => {
     as.open()
     exPool.open()
 
