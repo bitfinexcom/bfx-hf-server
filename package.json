@@ -19,7 +19,11 @@
   ],
   "dependencies": {
     "aes-js": "^3.1.2",
+    "bfx-api-node-core": "^1.1.8",
     "bfx-api-node-models": "^1.0.13",
+    "bfx-api-node-plugin-managed-candles": "^1.0.2",
+    "bfx-api-node-plugin-managed-ob": "^1.0.2",
+    "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "^1.1.4",
     "bfx-api-node-util": "^1.0.9",
     "bfx-hf-algo": "^2.0.1",
