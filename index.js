@@ -10,7 +10,6 @@ const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const EXAS = require('./lib/exchange_clients')
 const AlgoServer = require('./lib/ws_servers/algos')
-const ExchangePoolServer = require('./lib/ws_servers/ex_pool')
 const APIWSServer = require('./lib/ws_servers/api')
 const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
@@ -59,14 +58,9 @@ module.exports = ({
     })
   }
 
-  const exPool = new ExchangePoolServer({
-    port: exPoolServerPort
-  })
-
   const api = new APIWSServer({
     db: apiDB,
     port: wsServerPort,
-    exPoolURL: `http://localhost:${exPoolServerPort}`,
     algoServerURL: `http://localhost:${algoServerPort}`,
     hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`,
     restURL: bfxRestURL,
@@ -76,7 +70,6 @@ module.exports = ({
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   syncMarkets(apiDB, EXAS, opts).then(() => {
     as.open()
-    exPool.open()
 
     if (dsBitfinex) {
       dsBitfinex.open()
