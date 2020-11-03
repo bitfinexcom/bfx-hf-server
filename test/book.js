@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 
-const updateBook = require('../../lib/exchange_clients/bitfinex/recv/data_handlers/book.js')
+const updateBook = require('../lib/exchange_clients/bitfinex/recv/data_handlers/book.js')
 
 describe('order books', () => {
   it('does not crash: empty snapshot and update following', () => {
