@@ -9,7 +9,6 @@ const { schema: HFDBBitfinexSchema } = require('bfx-hf-ext-plugin-bitfinex')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const EXAS = require('./lib/exchange_clients')
-const AlgoServer = require('./lib/ws_servers/algos')
 const APIWSServer = require('./lib/ws_servers/api')
 const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
@@ -39,13 +38,18 @@ module.exports = ({
     adapter: HFDBLowDBAdapter({ dbPath: uiDBPath })
   })
 
-  const as = new AlgoServer({
+  const algoDB = new HFDB({
+    schema: HFDBDummySchema,
+    adapter: HFDBLowDBAdapter({ dbPath: algoDBPath })
+  })
+
+  const algoServerParams = {
     port: algoServerPort,
     hfLowDBPath: algoDBPath,
     apiDB,
     wsURL: bfxWSURL,
     restURL: bfxRestURL
-  })
+  }
 
   let dsBitfinex = null
 
@@ -59,6 +63,8 @@ module.exports = ({
   }
 
   const api = new APIWSServer({
+    algoDB,
+    algoServerParams,
     db: apiDB,
     port: wsServerPort,
     algoServerURL: `http://localhost:${algoServerPort}`,
@@ -69,8 +75,6 @@ module.exports = ({
 
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   syncMarkets(apiDB, EXAS, opts).then(() => {
-    as.open()
-
     if (dsBitfinex) {
       dsBitfinex.open()
     }
