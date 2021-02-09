@@ -14,7 +14,7 @@ const APIWSServer = require('./lib/ws_servers/api')
 const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
 
-module.exports = ({
+module.exports = async ({
   bfxRestURL,
   bfxWSURL,
   uiDBPath,
@@ -73,15 +73,22 @@ module.exports = ({
   })
 
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
-  syncMarkets(apiDB, EXAS, opts).then(() => {
-    as.open()
+  async function tryConnect () {
+    try {
+      await syncMarkets(apiDB, EXAS, opts)
 
-    if (dsBitfinex) {
-      dsBitfinex.open()
+      as.open()
+
+      if (dsBitfinex) {
+        dsBitfinex.open()
+      }
+
+      api.open()
+    } catch (e) {
+      capture.exception(e)
+      setTimeout(tryConnect, 3000)
     }
+  }
 
-    api.open()
-  }).catch((e) => {
-    capture.exception(e)
-  })
+  await tryConnect()
 }
