@@ -39,7 +39,6 @@
     "bluebird": "^3.7.2",
     "debug": "^4.1.1",
     "lodash": "^4.17.11",
-    "mocha": "^6.2.0",
     "p-iteration": "^1.1.8",
     "scrypt-js": "^2.0.4",
     "sha.js": "^2.4.11",
@@ -53,5 +52,13 @@
     "test": "npm run lint && npm run unit",
     "unit": "NODE_PATH=lib NODE_ENV=test mocha"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "mocha": "^6.2.3",
+    "standard": "^16.0.3"
+  },
+  "standard": {
+    "ignore": [
+      "/docs/**/*.js"
+    ]
+  }
 }

@@ -1,13 +1,17 @@
 'use strict'
 
+const os = require('os')
+
 process.env.DEBUG = 'bfx:hf:*'
 
 const startHFServer = require('..')
 
+const dir = `${os.homedir()}/.honeyframework`
+
 startHFServer({
-  uiDBPath: `${__dirname}/../db/ui.json`,
-  algoDBPath: `${__dirname}/../db/algos.json`,
-  hfBitfinexDBPath: `${__dirname}/../db/hf-bitfinex.json`
+  uiDBPath: `${dir}/ui.json`,
+  algoDBPath: `${dir}/algos.json`
+
   // bfxRestURL: '',
   // bfxWSURL: ''
 })

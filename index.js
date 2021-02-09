@@ -22,7 +22,6 @@ module.exports = ({
   hfBitfinexDBPath,
   algoServerPort = 25223,
   wsServerPort = 45000,
-  exPoolServerPort = 25224,
   hfDSBitfinexPort = 23521
 }) => {
   let dbBitfinex = null
@@ -39,10 +38,15 @@ module.exports = ({
     adapter: HFDBLowDBAdapter({ dbPath: uiDBPath })
   })
 
+  const algoDB = new HFDB({
+    schema: HFDBDummySchema,
+    adapter: HFDBLowDBAdapter({ dbPath: algoDBPath })
+  })
+
   const as = new AlgoServer({
-    port: algoServerPort,
-    hfLowDBPath: algoDBPath,
+    algoDB,
     apiDB,
+    port: algoServerPort,
     wsURL: bfxWSURL,
     restURL: bfxRestURL
   })
@@ -59,6 +63,7 @@ module.exports = ({
   }
 
   const api = new APIWSServer({
+    algoDB,
     db: apiDB,
     port: wsServerPort,
     algoServerURL: `http://localhost:${algoServerPort}`,
