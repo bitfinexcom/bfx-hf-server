@@ -11,6 +11,7 @@ const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 const EXAS = require('./lib/exchange_clients')
 const AlgoServer = require('./lib/ws_servers/algos')
 const APIWSServer = require('./lib/ws_servers/api')
+const HttpProxy = require('./lib/bfx_api_proxy')
 const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
 
@@ -22,7 +23,8 @@ module.exports = async ({
   hfBitfinexDBPath,
   algoServerPort = 25223,
   wsServerPort = 45000,
-  hfDSBitfinexPort = 23521
+  hfDSBitfinexPort = 23521,
+  httpProxyPort = 45001
 }) => {
   let dbBitfinex = null
 
@@ -72,11 +74,17 @@ module.exports = async ({
     wsURL: bfxWSURL
   })
 
+  const proxy = new HttpProxy({
+    restURL: bfxRestURL || 'https://api-pub.bitfinex.com',
+    port: httpProxyPort
+  })
+
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   async function tryConnect () {
     try {
       await syncMarkets(apiDB, EXAS, opts)
 
+      proxy.open()
       as.open()
 
       if (dsBitfinex) {
