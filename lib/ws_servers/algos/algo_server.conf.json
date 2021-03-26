@@ -1,0 +1,7 @@
+{
+  "algos": [
+    "PingPong", "Iceberg",
+    "TWAP", "AccumulateDistribute",
+    "MACrossover", "OCOCO"
+  ]
+}
