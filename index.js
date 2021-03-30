@@ -72,7 +72,6 @@ module.exports = async ({
     db: apiDB,
     port: wsServerPort,
     algoServerURL: `http://localhost:${algoServerPort}`,
-    hfDSBitfinexURL: `http://localhost:${hfDSBitfinexPort}`,
     restURL: bfxRestURL,
     wsURL: bfxWSURL
   })
