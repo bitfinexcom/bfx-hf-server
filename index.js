@@ -7,7 +7,6 @@ const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
-const AlgoServer = require('./lib/ws_servers/algos')
 const APIWSServer = require('./lib/ws_servers/api')
 const HttpProxy = require('./lib/bfx_api_proxy')
 const syncMarkets = require('./lib/sync_meta')
@@ -20,7 +19,6 @@ module.exports = async ({
   bfxWSURL,
   uiDBPath,
   algoDBPath,
-  algoServerPort = 25223,
   wsServerPort = 45000,
   httpProxyPort = 45001
 }) => {
@@ -34,22 +32,14 @@ module.exports = async ({
     adapter: HFDBLowDBAdapter({ dbPath: algoDBPath })
   })
 
-  const as = new AlgoServer({
-    algoDB,
-    apiDB,
-    port: algoServerPort,
-    wsURL: bfxWSURL,
-    restURL: bfxRestURL,
-    algos
-  })
-
   const api = new APIWSServer({
     algoDB,
     db: apiDB,
     port: wsServerPort,
-    algoServerURL: `http://localhost:${algoServerPort}`,
     restURL: bfxRestURL,
-    wsURL: bfxWSURL
+    wsURL: bfxWSURL,
+
+    algos
   })
 
   const proxy = new HttpProxy({
@@ -63,7 +53,6 @@ module.exports = async ({
       await syncMarkets(apiDB, BitfinexExchangeClient, opts)
 
       proxy.open()
-      as.open()
 
       api.open()
     } catch (e) {
