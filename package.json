@@ -18,6 +18,7 @@
     "BTC"
   ],
   "dependencies": {
+    "@lifeomic/attempt": "^3.0.0",
     "aes-js": "^3.1.2",
     "bfx-api-node-core": "^1.1.8",
     "bfx-api-node-models": "^1.0.13",
