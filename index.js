@@ -8,7 +8,7 @@ const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
 const { schema: HFDBBitfinexSchema } = require('bfx-hf-ext-plugin-bitfinex')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
-const EXAS = require('./lib/exchange_clients')
+const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
 const AlgoServer = require('./lib/ws_servers/algos')
 const APIWSServer = require('./lib/ws_servers/api')
 const HttpProxy = require('./lib/bfx_api_proxy')
@@ -84,7 +84,7 @@ module.exports = async ({
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   async function tryConnect () {
     try {
-      await syncMarkets(apiDB, EXAS, opts)
+      await syncMarkets(apiDB, BitfinexExchangeClient, opts)
 
       proxy.open()
       as.open()
