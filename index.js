@@ -73,7 +73,9 @@ module.exports = async ({
     port: wsServerPort,
     algoServerURL: `http://localhost:${algoServerPort}`,
     restURL: bfxRestURL,
-    wsURL: bfxWSURL
+    wsURL: bfxWSURL,
+
+    algos
   })
 
   const proxy = new HttpProxy({
