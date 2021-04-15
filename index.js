@@ -3,9 +3,7 @@
 require('bfx-hf-util/lib/catch_uncaught_errors')
 
 const HFDB = require('bfx-hf-models')
-const DataServer = require('bfx-hf-data-server')
 const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
-const { schema: HFDBBitfinexSchema } = require('bfx-hf-ext-plugin-bitfinex')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
@@ -22,21 +20,10 @@ module.exports = async ({
   bfxWSURL,
   uiDBPath,
   algoDBPath,
-  hfBitfinexDBPath,
   algoServerPort = 25223,
   wsServerPort = 45000,
-  hfDSBitfinexPort = 23521,
   httpProxyPort = 45001
 }) => {
-  let dbBitfinex = null
-
-  if (hfBitfinexDBPath && hfDSBitfinexPort) {
-    dbBitfinex = new HFDB({
-      schema: HFDBBitfinexSchema,
-      adapter: HFDBLowDBAdapter({ dbPath: hfBitfinexDBPath })
-    })
-  }
-
   const apiDB = new HFDB({
     schema: HFDBDummySchema,
     adapter: HFDBLowDBAdapter({ dbPath: uiDBPath })
@@ -55,17 +42,6 @@ module.exports = async ({
     restURL: bfxRestURL,
     algos
   })
-
-  let dsBitfinex = null
-
-  if (dbBitfinex) {
-    dsBitfinex = new DataServer({
-      port: hfDSBitfinexPort,
-      db: dbBitfinex,
-      restURL: bfxRestURL,
-      wsURL: bfxWSURL
-    })
-  }
 
   const api = new APIWSServer({
     algoDB,
@@ -88,10 +64,6 @@ module.exports = async ({
 
       proxy.open()
       as.open()
-
-      if (dsBitfinex) {
-        dsBitfinex.open()
-      }
 
       api.open()
     } catch (e) {
