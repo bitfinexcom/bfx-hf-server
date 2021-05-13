@@ -3,7 +3,5 @@
     "PingPong", "Iceberg",
     "TWAP", "AccumulateDistribute",
     "MACrossover", "OCOCO"
-  ],
-  "logAlgo": false,
-  "logAlgoDir": ""
+  ]
 }

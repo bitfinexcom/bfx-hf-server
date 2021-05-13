@@ -6,13 +6,14 @@ const HFDB = require('bfx-hf-models')
 const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
+const { ALGO_LOG, ALGO_LOG_DIR } = process.env
 const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
 const APIWSServer = require('./lib/ws_servers/api')
 const HttpProxy = require('./lib/bfx_api_proxy')
 const syncMarkets = require('./lib/sync_meta')
 const capture = require('./lib/capture')
 
-const { algos, logAlgo = false, logAlgoDir = '' } = require('./config/algo_server.conf.json')
+const { algos } = require('./config/algo_server.conf.json')
 
 module.exports = async ({
   bfxRestURL,
@@ -32,6 +33,11 @@ module.exports = async ({
     adapter: HFDBLowDBAdapter({ dbPath: algoDBPath })
   })
 
+  const logAlgoOpts = {
+    logAlgo: ALGO_LOG ? ALGO_LOG === 'true' : false,
+    logAlgoDir: ALGO_LOG_DIR || ''
+  }
+
   const api = new APIWSServer({
     algoDB,
     db: apiDB,
@@ -40,8 +46,7 @@ module.exports = async ({
     wsURL: bfxWSURL,
 
     algos,
-    logAlgo,
-    logAlgoDir
+    logAlgoOpts
   })
 
   const proxy = new HttpProxy({
