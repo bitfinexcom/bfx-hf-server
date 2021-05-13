@@ -50,7 +50,8 @@ module.exports = async ({
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   async function tryConnect () {
     try {
-      await syncMarkets(apiDB, BitfinexExchangeClient, opts)
+      const marketData = await syncMarkets(BitfinexExchangeClient, opts)
+      api.saveMarketData(marketData)
 
       proxy.open()
 
