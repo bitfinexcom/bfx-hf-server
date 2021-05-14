@@ -9,7 +9,7 @@ const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
 const APIWSServer = require('./lib/ws_servers/api')
 const HttpProxy = require('./lib/bfx_api_proxy')
-const syncMarkets = require('./lib/sync_meta')
+const getMarketData = require('./lib/get_market_data')
 const capture = require('./lib/capture')
 
 const { algos } = require('./config/algo_server.conf.json')
@@ -50,7 +50,7 @@ module.exports = async ({
   const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
   async function tryConnect () {
     try {
-      const marketData = await syncMarkets(BitfinexExchangeClient, opts)
+      const marketData = await getMarketData(BitfinexExchangeClient, opts)
       api.saveMarketData(marketData)
 
       proxy.open()
