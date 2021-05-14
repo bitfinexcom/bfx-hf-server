@@ -51,7 +51,7 @@ module.exports = async ({
   async function tryConnect () {
     try {
       const marketData = await getMarketData(BitfinexExchangeClient, opts)
-      api.saveMarketData(marketData)
+      api.setMarketData(marketData)
 
       proxy.open()
 
