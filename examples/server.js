@@ -3,6 +3,8 @@
 const os = require('os')
 
 process.env.DEBUG = 'bfx:hf:*'
+process.env.ALGO_LOG = false
+process.env.ALGO_LOG_DIR = ''
 
 const startHFServer = require('..')
 
