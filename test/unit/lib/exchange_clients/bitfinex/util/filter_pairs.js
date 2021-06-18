@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 
-const filterPairs = require('../lib/exchange_clients/bitfinex/util/filter_pairs.js')
+const filterPairs = require('exchange_clients/bitfinex/util/filter_pairs.js')
 
 describe('filter pairs', () => {
   it('filters out paper trading pairs', () => {
