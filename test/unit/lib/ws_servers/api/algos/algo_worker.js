@@ -50,6 +50,7 @@ describe('AlgoWorker', () => {
   const algoDB = null
   const logAlgoOpts = null
   const marketData = null
+  const config = { auth: { tokenTtlInSeconds: 300 } }
 
   describe('starting the algo worker', () => {
     const apiKey = 'api key'
@@ -71,7 +72,7 @@ describe('AlgoWorker', () => {
       const authToken = 'generated auth token'
       RestStub.generateToken.resolves([authToken])
 
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
 
       await algoWorker.start(apiKey, apiSecret, userID)
@@ -86,9 +87,8 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(RestStub.generateToken, {
         scope: 'api',
         writePermission: true,
-        _cust_ip: null,
-        ttl: 5 * 60 * 60,
-        caps: ['f']
+        ttl: config.auth.tokenTtlInSeconds,
+        caps: ['a', 'o', 'w']
       })
       // create ao instance
       assert.calledWithExactly(AOHostConstructor, {

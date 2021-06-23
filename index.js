@@ -13,7 +13,7 @@ const HttpProxy = require('./lib/bfx_api_proxy')
 const getMarketData = require('./lib/get_market_data')
 const capture = require('./lib/capture')
 
-const { algos } = require('./config/algo_server.conf.json')
+const config = require('./config/algo_server.conf.json')
 
 module.exports = async ({
   bfxRestURL,
@@ -44,9 +44,9 @@ module.exports = async ({
     port: wsServerPort,
     restURL: bfxRestURL,
     wsURL: bfxWSURL,
-
-    algos,
-    logAlgoOpts
+    algos: config.algos,
+    logAlgoOpts,
+    config
   })
 
   const proxy = new HttpProxy({
