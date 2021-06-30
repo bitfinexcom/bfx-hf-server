@@ -39,6 +39,12 @@ describe('AlgoWorker', () => {
     sandbox.restore()
   })
 
+  afterEach(() => {
+    RestConstructor.reset()
+    RestStub.generateToken.reset()
+    AOHostConstructor.reset()
+  })
+
   const settings = {
     dms: 'dms',
     affiliateCode: 'affiliate code',
@@ -55,7 +61,7 @@ describe('AlgoWorker', () => {
   describe('starting the algo worker', () => {
     const apiKey = 'api key'
     const apiSecret = 'api secret'
-    const userID = 'user id'
+    const userId = 'user id'
 
     it('should create the host and register the events', async () => {
       const aoInstance = {
@@ -75,7 +81,7 @@ describe('AlgoWorker', () => {
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
 
-      await algoWorker.start(apiKey, apiSecret, userID)
+      await algoWorker.start({ apiKey, apiSecret, userId })
 
       // generate auth token with api credentials
       assert.calledWithExactly(RestConstructor, {
@@ -110,7 +116,7 @@ describe('AlgoWorker', () => {
       // connect
       assert.calledWithExactly(AOHostStub.connect)
       // publish opened event
-      assert.calledWithExactly(WsStub.firstCall, ['opened', userID, 'bitfinex'])
+      assert.calledWithExactly(WsStub.firstCall, ['opened', userId, 'bitfinex'])
       // send active instances
       assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', [[
         aoInstance.state.gid,
@@ -119,9 +125,45 @@ describe('AlgoWorker', () => {
         aoInstance.state.args
       ]]])
       // final worker inner-state
-      expect(algoWorker.userID).to.be.eq(userID)
+      expect(algoWorker.userId).to.be.eq(userId)
       expect(algoWorker.isStarted).to.be.true
       expect(algoWorker.host).to.eq(AOHostStub)
+    })
+
+    it('should skip auth token generation if the token is already provided', async () => {
+      const aoInstance = {
+        state: {
+          active: true,
+          gid: 'gid',
+          name: 'name',
+          args: 'args',
+          label: 'label'
+        }
+      }
+      AOHostStub.getAOInstances.returns([aoInstance])
+
+      const authToken = 'provided auth token'
+      RestStub.generateToken.rejects()
+
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+      expect(algoWorker.isStarted).to.be.false
+
+      await algoWorker.start({ authToken, userId })
+
+      assert.notCalled(RestConstructor)
+      assert.notCalled(RestStub.generateToken)
+      assert.calledWithExactly(AOHostConstructor, {
+        aos: [],
+        logAlgoOpts: null,
+        wsSettings: {
+          authToken,
+          dms: 4,
+          withHeartbeat: true,
+          affiliateCode: settings.affiliateCode,
+          wsURL: settings.wsURL,
+          restURL: settings.restURL
+        }
+      })
     })
   })
 })
