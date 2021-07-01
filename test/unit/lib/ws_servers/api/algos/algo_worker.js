@@ -106,7 +106,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
-          restURL: settings.restURL
+          plugins: []
         }
       })
       // register events
@@ -161,7 +161,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
-          restURL: settings.restURL
+          plugins: []
         }
       })
     })
