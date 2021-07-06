@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "aes-js": "^3.1.2",
-    "bfx-api-node-rest": "^1.1.4",
+    "bfx-api-node-rest": "^4.1.2",
     "bfx-hf-algo": "^4.0.0",
     "bfx-hf-ext-plugin-dummy": "^1.0.0",
     "bfx-hf-models": "^2.3.0",
