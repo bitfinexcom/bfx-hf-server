@@ -20,7 +20,7 @@
   "dependencies": {
     "aes-js": "^3.1.2",
     "bfx-api-node-rest": "^4.1.2",
-    "bfx-hf-algo": "^4.3.0",
+    "bfx-hf-algo": "github:tarcisiozf/bfx-hf-algo#gid-as-uuid",
     "bfx-hf-ext-plugin-dummy": "^1.0.0",
     "bfx-hf-models": "^2.3.0",
     "bfx-hf-models-adapter-lowdb": "^1.0.0",
