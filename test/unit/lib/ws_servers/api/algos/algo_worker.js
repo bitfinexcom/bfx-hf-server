@@ -4,7 +4,7 @@
 
 const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
-const proxyquire = require('proxyquire')
+const proxyquire = require('proxyquire').noCallThru()
 
 const sandbox = createSandbox()
 const WsStub = sandbox.stub()
@@ -12,11 +12,14 @@ const AOHostConstructor = sandbox.stub()
 const AOHostStub = {
   on: sandbox.stub(),
   connect: sandbox.stub(),
-  getAOInstances: sandbox.stub()
+  getAOInstances: sandbox.stub(),
+  removeAllListeners: sandbox.stub(),
+  close: sandbox.stub(),
+  cleanState: sandbox.stub()
 }
-const RestConstructor = sandbox.stub()
-const RestStub = {
-  generateToken: sandbox.stub()
+const TokenAdapterConstructor = sandbox.stub()
+const TokenAdapterStub = {
+  refreshToken: sandbox.stub()
 }
 
 const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
@@ -26,12 +29,10 @@ const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
       return AOHostStub
     })
   },
-  'bfx-api-node-rest': {
-    RESTv2: sandbox.spy((args) => {
-      RestConstructor(args)
-      return RestStub
-    })
-  }
+  'bfx-hf-token-renewal-plugin/lib/adapters/bitfinex-adapter': sandbox.spy((args) => {
+    TokenAdapterConstructor(args)
+    return TokenAdapterStub
+  })
 })
 
 describe('AlgoWorker', () => {
@@ -40,9 +41,8 @@ describe('AlgoWorker', () => {
   })
 
   afterEach(() => {
-    RestConstructor.reset()
-    RestStub.generateToken.reset()
     AOHostConstructor.reset()
+    TokenAdapterConstructor.reset()
   })
 
   const settings = {
@@ -76,7 +76,7 @@ describe('AlgoWorker', () => {
       AOHostStub.getAOInstances.returns([aoInstance])
 
       const authToken = 'generated auth token'
-      RestStub.generateToken.resolves([authToken])
+      TokenAdapterStub.refreshToken.returns({ authToken })
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
@@ -84,18 +84,6 @@ describe('AlgoWorker', () => {
       await algoWorker.start({ apiKey, apiSecret, userId })
 
       // generate auth token with api credentials
-      assert.calledWithExactly(RestConstructor, {
-        url: settings.restURL,
-        apiKey,
-        apiSecret,
-        transform: true
-      })
-      assert.calledWithExactly(RestStub.generateToken, {
-        scope: 'api',
-        writePermission: true,
-        ttl: config.auth.tokenTtlInSeconds,
-        caps: ['a', 'o', 'w']
-      })
       // create ao instance
       assert.calledWithExactly(AOHostConstructor, {
         aos: [],
@@ -106,7 +94,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
-          plugins: []
+          plugins: [algoWorker.tokenPlugin]
         }
       })
       // register events
@@ -128,6 +116,7 @@ describe('AlgoWorker', () => {
       expect(algoWorker.userId).to.be.eq(userId)
       expect(algoWorker.isStarted).to.be.true
       expect(algoWorker.host).to.eq(AOHostStub)
+      algoWorker.close()
     })
 
     it('should skip auth token generation if the token is already provided', async () => {
@@ -143,15 +132,13 @@ describe('AlgoWorker', () => {
       AOHostStub.getAOInstances.returns([aoInstance])
 
       const authToken = 'provided auth token'
-      RestStub.generateToken.rejects()
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
 
       await algoWorker.start({ authToken, userId })
 
-      assert.notCalled(RestConstructor)
-      assert.notCalled(RestStub.generateToken)
+      assert.notCalled(TokenAdapterConstructor)
       assert.calledWithExactly(AOHostConstructor, {
         aos: [],
         logAlgoOpts: null,
@@ -164,6 +151,7 @@ describe('AlgoWorker', () => {
           plugins: []
         }
       })
+      algoWorker.close()
     })
   })
 })

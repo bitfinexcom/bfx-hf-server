@@ -24,6 +24,7 @@
     "bfx-hf-ext-plugin-dummy": "^1.0.0",
     "bfx-hf-models": "^2.3.0",
     "bfx-hf-models-adapter-lowdb": "^1.0.0",
+    "bfx-hf-token-renewal-plugin": "github:tarcisiozf/bfx-hf-token-renewal-plugin#move-to-repo",
     "bfx-hf-ui-config": "^1.0.0",
     "bfx-hf-util": "^1.0.1",
     "bignumber.js": "^9.0.0",
