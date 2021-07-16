@@ -43,6 +43,7 @@ describe('AlgoWorker', () => {
   afterEach(() => {
     AOHostConstructor.reset()
     TokenAdapterConstructor.reset()
+    WsStub.reset()
   })
 
   const settings = {
@@ -53,7 +54,7 @@ describe('AlgoWorker', () => {
   }
   const algoOrders = []
   const bcast = { ws: WsStub }
-  const algoDB = null
+  const algoDB = { AlgoOrder: { set: sandbox.stub() } }
   const logAlgoOpts = null
   const marketData = null
   const config = { auth: { tokenTtlInSeconds: 300 } }
@@ -152,6 +153,39 @@ describe('AlgoWorker', () => {
         }
       })
       algoWorker.close()
+    })
+  })
+
+  describe('submit order', () => {
+    const aoID = 'ao-id'
+    const ao = {}
+    const host = {
+      getAO: sandbox.stub(),
+      startAO: sandbox.stub()
+    }
+    const gid = 'gid'
+    const serialized = { gid }
+    const uiData = {
+      name: 'name',
+      label: 'label',
+      args: {},
+      gid
+    }
+
+    it('should start ao', async () => {
+      host.getAO.returns(ao)
+      host.startAO.resolves([serialized, uiData])
+
+      const order = {}
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+      algoWorker.host = host
+
+      await algoWorker.submitOrder(aoID, order)
+
+      assert.calledWithExactly(host.startAO, aoID, order)
+      assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
+      assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+      assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
     })
   })
 })
