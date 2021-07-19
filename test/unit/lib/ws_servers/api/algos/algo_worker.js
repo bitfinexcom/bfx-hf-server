@@ -56,7 +56,7 @@ describe('AlgoWorker', () => {
   const bcast = { ws: WsStub }
   const algoDB = { AlgoOrder: { set: sandbox.stub() } }
   const logAlgoOpts = null
-  const marketData = null
+  const marketData = new Map()
   const config = { auth: { tokenTtlInSeconds: 300 } }
 
   describe('starting the algo worker', () => {
@@ -156,45 +156,49 @@ describe('AlgoWorker', () => {
     })
   })
 
-  describe('submit order', () => {
-    const aoID = 'ao-id'
-    const ao = {}
-    const host = {
-      getAO: sandbox.stub(),
-      startAO: sandbox.stub(),
-      loadAO: sandbox.stub()
+  describe('orders', () => {
+    const symbol = 'tAAABBB'
+    const symbolDetails = {
+      exchange: 'bitfinex',
+      lev: 0,
+      quote: 'BBB',
+      base: 'AAA',
+      wsID: 'tAAABBB',
+      restID: 'tAAABBB',
+      uiID: 'AAA/BBB',
+      contexts: [
+        'e'
+      ],
+      p: 1,
+      minSize: 2,
+      maxSize: 100
     }
-    const gid = 'gid'
-    const serialized = { gid }
-    const uiData = {
-      name: 'name',
-      label: 'label',
-      args: {},
-      gid
+    const order = {
+      tradeBeyondEnd: false,
+      orderType: 'LIMIT',
+      amount: 2,
+      amountDistortion: 0.01,
+      sliceAmount: 2,
+      sliceInterval: 2,
+      priceDelta: 0,
+      price: null,
+      priceTarget: 'OB_MID',
+      priceCondition: 'MATCH_MIDPOINT',
+      lev: 10,
+      action: 'Buy',
+      _symbol: symbol,
+      _margin: false,
+      _futures: false
     }
-
-    it('should start ao', async () => {
-      host.getAO.returns(ao)
-      host.startAO.resolves([serialized, uiData])
-
-      const order = {}
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
-      algoWorker.host = host
-
-      await algoWorker.submitOrder({ aoID, order })
-
-      assert.notCalled(host.loadAO)
-      assert.calledWithExactly(host.startAO, aoID, order)
-      assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-      assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
-      assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
-    })
-  })
-
-  describe('load order', () => {
+    const validateParams = sandbox.stub()
+    const processParams = sandbox.stub()
     const aoID = 'ao-id'
-    const ao = {}
-    const state = {}
+    const ao = {
+      meta: {
+        validateParams,
+        processParams
+      }
+    }
     const host = {
       getAO: sandbox.stub(),
       startAO: sandbox.stub(),
@@ -209,20 +213,54 @@ describe('AlgoWorker', () => {
       gid: 'ui gid'
     }
 
-    it('should load ao', async () => {
-      host.getAO.returns(ao)
-      host.loadAO.resolves([serialized, uiData])
+    before(() => {
+      marketData.set(symbol, symbolDetails)
+    })
 
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
-      algoWorker.host = host
+    afterEach(() => {
+      sandbox.reset()
+    })
 
-      await algoWorker.submitOrder({ aoID, gid, state })
+    describe('submit order', () => {
+      it('should start ao', async () => {
+        host.getAO.returns(ao)
+        host.startAO.resolves([serialized, uiData])
+        processParams.returns(order)
 
-      assert.notCalled(host.startAO)
-      assert.calledWithExactly(host.loadAO, aoID, gid, state)
-      assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-      assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
-      assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+        algoWorker.host = host
+
+        await algoWorker.submitOrder(aoID, order)
+
+        assert.calledWithExactly(processParams, order)
+        assert.calledWithExactly(validateParams, order, symbolDetails)
+        assert.notCalled(host.loadAO)
+        assert.calledWithExactly(host.startAO, aoID, order)
+        assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
+        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+      })
+    })
+
+    describe('load order', () => {
+      const state = {}
+      const serialized = { gid }
+
+      it('should load ao', async () => {
+        host.getAO.returns(ao)
+        host.loadAO.resolves([serialized, uiData])
+
+        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+        algoWorker.host = host
+
+        await algoWorker.loadOrder(aoID, gid, state)
+
+        assert.notCalled(host.startAO)
+        assert.calledWithExactly(host.loadAO, aoID, gid, state)
+        assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
+        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+      })
     })
   })
 })
