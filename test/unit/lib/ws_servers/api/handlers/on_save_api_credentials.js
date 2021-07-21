@@ -169,7 +169,7 @@ describe('on save api credentials', () => {
 
     assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
     const { db, d, wsURL, restURL } = server
-    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, db, d, opts: { wsURL, restURL }})
+    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, db, d, opts: { wsURL, restURL } })
     expect(ws.clients.bitfinex).to.eql(client)
   })
 })
