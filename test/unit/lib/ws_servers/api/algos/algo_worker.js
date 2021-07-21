@@ -210,7 +210,7 @@ describe('AlgoWorker', () => {
       name: 'name',
       label: 'label',
       args: {},
-      gid: 'ui gid'
+      gid
     }
 
     before(() => {
@@ -230,7 +230,7 @@ describe('AlgoWorker', () => {
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
 
-        await algoWorker.submitOrder(aoID, order)
+        const returnedGid = await algoWorker.submitOrder(aoID, order)
 
         assert.calledWithExactly(processParams, order)
         assert.calledWithExactly(validateParams, order, symbolDetails)
@@ -239,6 +239,7 @@ describe('AlgoWorker', () => {
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
         assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+        expect(returnedGid).to.eq(gid)
       })
     })
 
@@ -253,13 +254,14 @@ describe('AlgoWorker', () => {
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
 
-        await algoWorker.loadOrder(aoID, gid, state)
+        const returnedGid = await algoWorker.loadOrder(aoID, gid, state)
 
         assert.notCalled(host.startAO)
         assert.calledWithExactly(host.loadAO, aoID, gid, state)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
         assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+        expect(returnedGid).to.eq(gid)
       })
     })
   })
