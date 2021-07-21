@@ -105,7 +105,7 @@ describe('send authenticated', () => {
     db.Credential.find.resolves([credentials])
     db.UserSettings.getAll.resolves({ userSettings: null })
     stubDecryptApiCreds.resolves({ key, secret })
-    stubOpenAuthBfxConn.resolves(client)
+    stubOpenAuthBfxConn.returns(client)
 
     await SendAuthenticated(ws, db, marketData, d, opts)
 
@@ -114,6 +114,6 @@ describe('send authenticated', () => {
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
     assert.calledWithExactly(ws.algoWorker.start, { apiKey: key, apiSecret: secret, userId: 'HF_User' })
     assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey: key, apiSecret: secret, userSettings: null, d, opts })
-    // expect(ws.clients.bitfinex).to.eq(client) // TODO not called for some reason
+    expect(ws.clients.bitfinex).to.eq(client)
   })
 })

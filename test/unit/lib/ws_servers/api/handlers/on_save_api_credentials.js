@@ -166,7 +166,7 @@ describe('on save api credentials', () => {
   it('should start algo worker', async () => {
     ws.algoWorker.isStarted = false
     const client = 'bfx exchange connection'
-    stubOpenAuthBfxConn.resolves(client)
+    stubOpenAuthBfxConn.returns(client)
     server.db.UserSettings.getAll.resolves({ userSettings: null })
 
     await Handler(server, ws, msg)
@@ -174,6 +174,6 @@ describe('on save api credentials', () => {
     assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
     const { d, wsURL, restURL } = server
     assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, userSettings: null, d, opts: { wsURL, restURL } })
-    // expect(ws.clients.bitfinex).to.eq(client) // TODO not called for some reason
+    expect(ws.clients.bitfinex).to.eq(client)
   })
 })
