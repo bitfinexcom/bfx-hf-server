@@ -95,6 +95,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
+          restURL: settings.restURL,
           plugins: [algoWorker.tokenPlugin]
         }
       })
@@ -149,6 +150,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
+          restURL: settings.restURL,
           plugins: []
         }
       })
