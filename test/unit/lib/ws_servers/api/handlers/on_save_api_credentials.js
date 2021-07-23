@@ -52,7 +52,10 @@ describe('on save api credentials', () => {
   const server = {
     d: sandbox.stub(),
     db: {
-      Credential: { set: sandbox.stub() }
+      Credential: { set: sandbox.stub() },
+      UserSettings: {
+        getAll: sandbox.stub()
+      }
     },
     wsURL: 'ws url',
     restURL: 'rest url',
@@ -163,13 +166,14 @@ describe('on save api credentials', () => {
   it('should start algo worker', async () => {
     ws.algoWorker.isStarted = false
     const client = 'bfx exchange connection'
-    stubOpenAuthBfxConn.resolves(client)
+    stubOpenAuthBfxConn.returns(client)
+    server.db.UserSettings.getAll.resolves({ userSettings: null })
 
     await Handler(server, ws, msg)
 
     assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
-    const { db, d, wsURL, restURL } = server
-    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, db, d, opts: { wsURL, restURL } })
+    const { d, wsURL, restURL } = server
+    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, userSettings: null, d, opts: { wsURL, restURL } })
     expect(ws.clients.bitfinex).to.eql(client)
   })
 })
