@@ -57,10 +57,11 @@ describe('AlgoWorker', () => {
   const logAlgoOpts = null
   const marketData = null
   const config = { auth: { tokenTtlInSeconds: 300 } }
+  const apiKey = 'api key'
+  const apiSecret = 'api secret'
+  const authToken = 'generated auth token'
 
   describe('starting the algo worker', () => {
-    const apiKey = 'api key'
-    const apiSecret = 'api secret'
     const userId = 'user id'
 
     it('should create the host and register the events', async () => {
@@ -74,8 +75,6 @@ describe('AlgoWorker', () => {
         }
       }
       AOHostStub.getAOInstances.returns([aoInstance])
-
-      const authToken = 'generated auth token'
       TokenAdapterStub.refreshToken.returns({ authToken })
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
@@ -94,6 +93,7 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
+          restURL: settings.restURL,
           plugins: [algoWorker.tokenPlugin]
         }
       })
@@ -148,10 +148,33 @@ describe('AlgoWorker', () => {
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
+          restURL: settings.restURL,
           plugins: []
         }
       })
       algoWorker.close()
+    })
+  })
+
+  describe('refresh auth args', () => {
+    it('should create an auth token if api credentials are provided', async () => {
+      TokenAdapterStub.refreshToken.returns({ authToken })
+
+      const adapter = { updateAuthArgs: sandbox.stub() }
+      const host = { getAdapter: sandbox.stub().returns(adapter) }
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+      algoWorker.host = host
+
+      const dms = 1
+      await algoWorker.updateAuthArgs({ apiKey, apiSecret, dms })
+
+      assert.calledOnce(host.getAdapter)
+      assert.calledWithExactly(adapter.updateAuthArgs, {
+        apiKey,
+        apiSecret,
+        dms,
+        authToken
+      })
     })
   })
 })
