@@ -20,10 +20,10 @@
   "dependencies": {
     "aes-js": "^3.1.2",
     "bfx-api-node-rest": "^4.1.2",
-    "bfx-hf-algo": "github:bitfinexcom/bfx-hf-algo#v4.3.5",
+    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.4.0",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
-    "bfx-hf-models": "github:bitfinexcom/bfx-hf-models#v2.3.3",
-    "bfx-hf-models-adapter-lowdb": "github:bitfinexcom/bfx-hf-models-adapter-lowdb#v1.0.4",
+    "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v2.4.0",
+    "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
     "bfx-hf-ui-config": "github:bitfinexcom/bfx-hf-ui-config#v1.1.0",
     "bfx-hf-util": "github:bitfinexcom/bfx-hf-util#v1.0.12",
     "bignumber.js": "^9.0.0",
