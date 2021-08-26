@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 
-const getMinMaxSizeForPairs = require('../lib/exchange_clients/bitfinex/util/get_min_max_size_for_pairs.js')
+const getMinMaxSizeForPairs = require('exchange_clients/bitfinex/util/get_min_max_size_for_pairs.js')
 
 describe('get min and max size for all pairs', () => {
   it('fetches the min and max size for all pairs', () => {

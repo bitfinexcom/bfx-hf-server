@@ -3,7 +3,7 @@
 
 const assert = require('assert')
 
-const getMaxLevForPairs = require('../lib/exchange_clients/bitfinex/util/get_max_lev_for_pairs.js')
+const getMaxLevForPairs = require('exchange_clients/bitfinex/util/get_max_lev_for_pairs.js')
 
 describe('get max leverage value for pairs', () => {
   it('calculates the max leverage value for margin and future pairs', () => {

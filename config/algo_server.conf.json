@@ -3,5 +3,8 @@
     "PingPong", "Iceberg",
     "TWAP", "AccumulateDistribute",
     "MACrossover", "OCOCO"
-  ]
+  ],
+  "auth": {
+    "tokenTtlInSeconds": 18000
+  }
 }
