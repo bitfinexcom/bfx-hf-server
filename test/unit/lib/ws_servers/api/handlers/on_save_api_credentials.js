@@ -18,6 +18,7 @@ const stubEncryptApiCred = sandbox.stub()
 const stubWsIsAuthorized = sandbox.stub()
 const stubCaptureException = sandbox.stub()
 const stubOpenAuthBfxConn = sandbox.stub()
+const stubValidateModes = sandbox.stub()
 const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
   '../../../util/ws/send': stubWsSend,
   '../../../util/ws/send_error': stubWsSendError,
@@ -31,7 +32,8 @@ const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
   '../../../util/encrypt_api_credentials': stubEncryptApiCred,
   '../../../util/ws/is_authorized': stubWsIsAuthorized,
   '../../../capture': { exception: stubCaptureException },
-  '../open_auth_bitfinex_connection': stubOpenAuthBfxConn
+  '../open_auth_bitfinex_connection': stubOpenAuthBfxConn,
+  '../validate_modes': stubValidateModes
 })
 
 describe('on save api credentials', () => {
