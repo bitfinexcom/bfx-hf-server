@@ -165,6 +165,7 @@ describe('AlgoWorker', () => {
       const host = { getAdapter: sandbox.stub().returns(adapter) }
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       algoWorker.host = host
+      algoWorker.isStarted = true
 
       const dms = 1
       await algoWorker.updateAuthArgs({ apiKey, apiSecret, dms })
@@ -252,6 +253,7 @@ describe('AlgoWorker', () => {
 
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
+        algoWorker.isStarted = true
 
         const returnedGid = await algoWorker.submitOrder(aoID, order)
 
@@ -276,6 +278,7 @@ describe('AlgoWorker', () => {
 
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
+        algoWorker.isStarted = true
 
         const returnedGid = await algoWorker.loadOrder(aoID, gid, state)
 

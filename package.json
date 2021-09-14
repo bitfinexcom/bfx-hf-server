@@ -25,7 +25,7 @@
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v2.4.1",
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
-    "bfx-hf-token-renewal-plugin": "git+https://github.com/bitfinexcom/bfx-hf-token-renewal-plugin.git#v1.0.0",
+    "bfx-hf-token-renewal-plugin": "git+https://github.com/bitfinexcom/bfx-hf-token-renewal-plugin.git#v1.0.1",
     "bfx-hf-ui-config": "github:bitfinexcom/bfx-hf-ui-config#v1.2.0",
     "bfx-hf-util": "github:bitfinexcom/bfx-hf-util#v1.0.12",
     "bignumber.js": "^9.0.0",
