@@ -17,10 +17,6 @@ const AOHostStub = {
   close: sandbox.stub(),
   cleanState: sandbox.stub()
 }
-const TokenAdapterConstructor = sandbox.stub()
-const TokenAdapterStub = {
-  refreshToken: sandbox.stub()
-}
 
 const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
   'bfx-hf-algo': {
@@ -28,11 +24,7 @@ const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
       AOHostConstructor(args)
       return AOHostStub
     })
-  },
-  'bfx-hf-token-renewal-plugin/lib/adapters/bitfinex-adapter': sandbox.spy((args) => {
-    TokenAdapterConstructor(args)
-    return TokenAdapterStub
-  })
+  }
 })
 
 describe('AlgoWorker', () => {
@@ -42,7 +34,6 @@ describe('AlgoWorker', () => {
 
   afterEach(() => {
     AOHostConstructor.reset()
-    TokenAdapterConstructor.reset()
     WsStub.reset()
   })
 
@@ -60,7 +51,7 @@ describe('AlgoWorker', () => {
   const config = { auth: { tokenTtlInSeconds: 300 } }
   const apiKey = 'api key'
   const apiSecret = 'api secret'
-  const authToken = 'generated auth token'
+  const authToken = 'auth token'
 
   describe('starting the algo worker', () => {
     const userId = 'user id'
@@ -76,12 +67,11 @@ describe('AlgoWorker', () => {
         }
       }
       AOHostStub.getAOInstances.returns([aoInstance])
-      TokenAdapterStub.refreshToken.returns({ authToken })
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
 
-      await algoWorker.start({ apiKey, apiSecret, userId })
+      await algoWorker.start({ apiKey, apiSecret, authToken, userId })
 
       // generate auth token with api credentials
       // create ao instance
@@ -89,13 +79,15 @@ describe('AlgoWorker', () => {
         aos: [],
         logAlgoOpts: null,
         wsSettings: {
+          apiKey,
+          apiSecret,
           authToken,
           dms: 4,
           withHeartbeat: true,
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
           restURL: settings.restURL,
-          plugins: [algoWorker.tokenPlugin]
+          plugins: []
         }
       })
       // register events
@@ -119,63 +111,23 @@ describe('AlgoWorker', () => {
       expect(algoWorker.host).to.eq(AOHostStub)
       algoWorker.close()
     })
-
-    it('should skip auth token generation if the token is already provided', async () => {
-      const aoInstance = {
-        state: {
-          active: true,
-          gid: 'gid',
-          name: 'name',
-          args: 'args',
-          label: 'label'
-        }
-      }
-      AOHostStub.getAOInstances.returns([aoInstance])
-
-      const authToken = 'provided auth token'
-
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
-      expect(algoWorker.isStarted).to.be.false
-
-      await algoWorker.start({ authToken, userId })
-
-      assert.notCalled(TokenAdapterConstructor)
-      assert.calledWithExactly(AOHostConstructor, {
-        aos: [],
-        logAlgoOpts: null,
-        wsSettings: {
-          authToken,
-          dms: 4,
-          withHeartbeat: true,
-          affiliateCode: settings.affiliateCode,
-          wsURL: settings.wsURL,
-          restURL: settings.restURL,
-          plugins: []
-        }
-      })
-      algoWorker.close()
-    })
   })
 
-  describe('refresh auth args', () => {
-    it('should create an auth token if api credentials are provided', async () => {
-      TokenAdapterStub.refreshToken.returns({ authToken })
+  it('refresh auth args', async () => {
+    const adapter = { updateAuthArgs: sandbox.stub() }
+    const host = { getAdapter: sandbox.stub().returns(adapter) }
+    const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+    algoWorker.host = host
+    algoWorker.isStarted = true
 
-      const adapter = { updateAuthArgs: sandbox.stub() }
-      const host = { getAdapter: sandbox.stub().returns(adapter) }
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
-      algoWorker.host = host
+    const dms = 1
+    await algoWorker.updateAuthArgs({ apiKey, apiSecret, dms })
 
-      const dms = 1
-      await algoWorker.updateAuthArgs({ apiKey, apiSecret, dms })
-
-      assert.calledOnce(host.getAdapter)
-      assert.calledWithExactly(adapter.updateAuthArgs, {
-        apiKey,
-        apiSecret,
-        dms,
-        authToken
-      })
+    assert.calledOnce(host.getAdapter)
+    assert.calledWithExactly(adapter.updateAuthArgs, {
+      apiKey,
+      apiSecret,
+      dms
     })
   })
 
@@ -252,6 +204,7 @@ describe('AlgoWorker', () => {
 
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
+        algoWorker.isStarted = true
 
         const returnedGid = await algoWorker.submitOrder(aoID, order)
 
@@ -276,6 +229,7 @@ describe('AlgoWorker', () => {
 
         const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
         algoWorker.host = host
+        algoWorker.isStarted = true
 
         const returnedGid = await algoWorker.loadOrder(aoID, gid, state)
 
