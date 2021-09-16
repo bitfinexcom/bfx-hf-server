@@ -56,6 +56,25 @@ describe('AlgoWorker', () => {
   describe('starting the algo worker', () => {
     const userId = 'user id'
 
+    const authResponse = {
+      event: 'auth',
+      status: 'OK',
+      chanId: 0,
+      userId: 123,
+      dms: 4,
+      auth_id: '5afa2e82',
+      caps: {
+        orders: {
+          read: 1,
+          write: 1
+        },
+        wallets: {
+          read: 1,
+          write: 1
+        }
+      }
+    }
+
     it('should create the host and register the events', async () => {
       const aoInstance = {
         state: {
@@ -67,6 +86,7 @@ describe('AlgoWorker', () => {
         }
       }
       AOHostStub.getAOInstances.returns([aoInstance])
+      AOHostStub.connect.resolves([authResponse])
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
@@ -130,6 +150,8 @@ describe('AlgoWorker', () => {
       dms
     })
   })
+
+
 
   describe('orders', () => {
     const symbol = 'tAAABBB'
