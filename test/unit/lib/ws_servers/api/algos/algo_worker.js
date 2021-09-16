@@ -86,7 +86,7 @@ describe('AlgoWorker', () => {
         }
       }
       AOHostStub.getAOInstances.returns([aoInstance])
-      AOHostStub.connect.resolves([authResponse])
+      AOHostStub.connect.resolves(authResponse)
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
       expect(algoWorker.isStarted).to.be.false
