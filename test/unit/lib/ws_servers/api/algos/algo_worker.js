@@ -48,7 +48,6 @@ describe('AlgoWorker', () => {
   const algoDB = { AlgoOrder: { set: sandbox.stub() } }
   const logAlgoOpts = null
   const marketData = new Map()
-  const config = { auth: { tokenTtlInSeconds: 300 } }
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const authToken = 'auth token'
@@ -88,7 +87,7 @@ describe('AlgoWorker', () => {
       AOHostStub.getAOInstances.returns([aoInstance])
       AOHostStub.connect.resolves(authResponse)
 
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
       expect(algoWorker.isStarted).to.be.false
 
       await algoWorker.start({ apiKey, apiSecret, authToken, userId })
@@ -136,7 +135,7 @@ describe('AlgoWorker', () => {
   it('refresh auth args', async () => {
     const adapter = { updateAuthArgs: sandbox.stub() }
     const host = { getAdapter: sandbox.stub().returns(adapter) }
-    const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+    const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
     algoWorker.host = host
     algoWorker.isStarted = true
 
@@ -224,7 +223,7 @@ describe('AlgoWorker', () => {
         host.startAO.resolves([serialized, uiData])
         processParams.returns(order)
 
-        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
         algoWorker.host = host
         algoWorker.isStarted = true
 
@@ -249,7 +248,7 @@ describe('AlgoWorker', () => {
         host.getAO.returns(ao)
         host.loadAO.resolves([serialized, uiData])
 
-        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, config)
+        const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
         algoWorker.host = host
         algoWorker.isStarted = true
 
