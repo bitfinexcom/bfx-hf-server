@@ -21,7 +21,7 @@
     "aes-js": "^3.1.2",
     "bfx-api-node-core": "^1.5.1",
     "bfx-api-node-rest": "^4.1.2",
-    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.6.0",
+    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.6.1",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v2.4.1",
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
