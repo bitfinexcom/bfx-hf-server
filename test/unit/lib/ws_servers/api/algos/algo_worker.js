@@ -150,8 +150,6 @@ describe('AlgoWorker', () => {
     })
   })
 
-
-
   describe('orders', () => {
     const symbol = 'tAAABBB'
     const symbolDetails = {
@@ -206,6 +204,7 @@ describe('AlgoWorker', () => {
       name: 'name',
       label: 'label',
       args: {},
+      i18n: {},
       gid
     }
 
@@ -234,7 +233,12 @@ describe('AlgoWorker', () => {
         assert.notCalled(host.loadAO)
         assert.calledWithExactly(host.startAO, aoID, order)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.firstCall, [
+          'notify',
+          'success',
+          'Started AO name on Bitfinex',
+          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+        ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
@@ -257,7 +261,12 @@ describe('AlgoWorker', () => {
         assert.notCalled(host.startAO)
         assert.calledWithExactly(host.loadAO, aoID, gid, state)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.firstCall, [
+          'notify',
+          'success',
+          'Started AO name on Bitfinex',
+          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+        ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
