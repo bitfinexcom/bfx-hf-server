@@ -74,7 +74,7 @@ describe('send authenticated', () => {
 
     assert.calledWith(stubFilterMarketData, marketData)
     assert.calledWithExactly(stubWsSend, ws, ['info.auth_token', ws.authControl])
-    assert.calledWithExactly(stubWsNotify, ws, 'Authenticated')
+    assert.calledWithExactly(stubWsNotify, ws, 'Authenticated', ['authenticated'])
     assert.calledWithExactly(db.Credential.find, [['mode', '=', opts.mode]])
     assert.notCalled(stubDecryptApiCreds)
   })
@@ -110,7 +110,12 @@ describe('send authenticated', () => {
     await SendAuthenticated(ws, db, marketData, d, opts)
 
     expect(ws.bitfinexCredentials).to.eql({ key, secret })
-    assert.calledWithExactly(stubWsNotify, ws, 'Decrypted credentials for bitfinex (paper)')
+    assert.calledWithExactly(
+      stubWsNotify,
+      ws,
+      'Decrypted credentials for bitfinex (paper)',
+      ['decryptedCredentialsFor', { target: 'Bitfinex', mode: 'paper' }]
+    )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
     assert.calledWithExactly(ws.algoWorker.start, { apiKey: key, apiSecret: secret, userId: 'HF_User' })
     assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey: key, apiSecret: secret, userSettings: null, d, opts })

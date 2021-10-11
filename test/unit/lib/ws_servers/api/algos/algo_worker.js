@@ -78,6 +78,7 @@ describe('AlgoWorker', () => {
       const aoInstance = {
         state: {
           active: true,
+          createdAt: 1633936704466,
           gid: 'gid',
           name: 'name',
           args: 'args',
@@ -122,7 +123,8 @@ describe('AlgoWorker', () => {
         aoInstance.state.gid,
         aoInstance.state.name,
         aoInstance.state.label,
-        aoInstance.state.args
+        aoInstance.state.args,
+        aoInstance.state.createdAt
       ]]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
@@ -149,8 +151,6 @@ describe('AlgoWorker', () => {
       dms
     })
   })
-
-
 
   describe('orders', () => {
     const symbol = 'tAAABBB'
@@ -201,11 +201,14 @@ describe('AlgoWorker', () => {
       loadAO: sandbox.stub()
     }
     const gid = 'gid'
+    const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
       name: 'name',
       label: 'label',
       args: {},
+      i18n: {},
+      createdAt,
       gid
     }
 
@@ -234,7 +237,12 @@ describe('AlgoWorker', () => {
         assert.notCalled(host.loadAO)
         assert.calledWithExactly(host.startAO, aoID, order)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.firstCall, [
+          'notify',
+          'success',
+          'Started AO name on Bitfinex',
+          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+        ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
@@ -252,12 +260,17 @@ describe('AlgoWorker', () => {
         algoWorker.host = host
         algoWorker.isStarted = true
 
-        const returnedGid = await algoWorker.loadOrder(aoID, gid, state)
+        const returnedGid = await algoWorker.loadOrder(aoID, gid, state, createdAt)
 
         assert.notCalled(host.startAO)
-        assert.calledWithExactly(host.loadAO, aoID, gid, state)
+        assert.calledWithExactly(host.loadAO, aoID, gid, state, createdAt)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
-        assert.calledWithExactly(WsStub.firstCall, ['notify', 'success', 'Started AO name on Bitfinex'])
+        assert.calledWithExactly(WsStub.firstCall, [
+          'notify',
+          'success',
+          'Started AO name on Bitfinex',
+          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+        ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
