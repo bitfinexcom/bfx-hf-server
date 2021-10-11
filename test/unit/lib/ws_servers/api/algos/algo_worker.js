@@ -78,6 +78,7 @@ describe('AlgoWorker', () => {
       const aoInstance = {
         state: {
           active: true,
+          createdAt: 1633936704466,
           gid: 'gid',
           name: 'name',
           args: 'args',
@@ -122,7 +123,8 @@ describe('AlgoWorker', () => {
         aoInstance.state.gid,
         aoInstance.state.name,
         aoInstance.state.label,
-        aoInstance.state.args
+        aoInstance.state.args,
+        aoInstance.state.createdAt
       ]]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
@@ -199,12 +201,14 @@ describe('AlgoWorker', () => {
       loadAO: sandbox.stub()
     }
     const gid = 'gid'
+    const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
       name: 'name',
       label: 'label',
       args: {},
       i18n: {},
+      createdAt,
       gid
     }
 
@@ -256,10 +260,10 @@ describe('AlgoWorker', () => {
         algoWorker.host = host
         algoWorker.isStarted = true
 
-        const returnedGid = await algoWorker.loadOrder(aoID, gid, state)
+        const returnedGid = await algoWorker.loadOrder(aoID, gid, state, createdAt)
 
         assert.notCalled(host.startAO)
-        assert.calledWithExactly(host.loadAO, aoID, gid, state)
+        assert.calledWithExactly(host.loadAO, aoID, gid, state, createdAt)
         assert.calledWithExactly(algoDB.AlgoOrder.set, serialized)
         assert.calledWithExactly(WsStub.firstCall, [
           'notify',
