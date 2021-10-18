@@ -115,7 +115,7 @@ describe('on save api credentials', () => {
     await Handler(server, ws, msg)
 
     assert.calledWithExactly(stubVerifyPassword, server.db, ws.authPassword)
-    assert.calledWithExactly(stubNotifyError, ws, 'Invalid password')
+    assert.calledWithExactly(stubNotifyError, ws, 'Invalid password', ['invalidPassword'])
     assert.notCalled(stubEncryptApiCred)
   })
 
@@ -148,7 +148,12 @@ describe('on save api credentials', () => {
       mode: formSent
     })
     assert.calledWithExactly(server.db.Credential.set, credentials)
-    assert.calledWithExactly(stubNotifySuccess, ws, 'Encrypted API credentials saved for Bitfinex')
+    assert.calledWithExactly(
+      stubNotifySuccess,
+      ws,
+      'Encrypted API credentials saved for Bitfinex',
+      ['encryptedApiCredentialsSavedFor', { target: 'Bitfinex' }]
+    )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
     assert.notCalled(server.reconnectAlgoHost)
   })
@@ -161,7 +166,12 @@ describe('on save api credentials', () => {
     assert.calledWithExactly(ws.clients.bitfinex.setAuthArgs, { apiKey, apiSecret })
     assert.calledWithExactly(ws.clients.bitfinex.reconnect)
     assert.calledWithExactly(server.reconnectAlgoHost, ws)
-    assert.calledWithExactly(stubNotifySuccess, ws, 'Reconnecting with new credentials...')
+    assert.calledWithExactly(
+      stubNotifySuccess,
+      ws,
+      'Reconnecting with new credentials...',
+      ['reconnectingWithNewCredentials']
+    )
     assert.notCalled(ws.algoWorker.start)
   })
 
