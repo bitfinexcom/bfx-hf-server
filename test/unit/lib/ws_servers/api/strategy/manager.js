@@ -7,6 +7,7 @@ const { assert, createSandbox } = require('sinon')
 const proxyquire = require('proxyquire').noCallThru()
 
 const sandbox = createSandbox()
+const WsStub = sandbox.stub()
 const restV2Stub = sandbox.stub()
 const executeStrategyStub = sandbox.stub()
 const ManagerConstructor = sandbox.stub()
@@ -44,6 +45,7 @@ describe('Strategy Manager', () => {
   const apiSecret = 'api secret'
   const authToken = 'auth token'
   const settings = { wsURL, restURL, dms }
+  const bcast = { ws: WsStub }
 
   const ws = { conn: 'connection details' }
   const parsedStrategy = { indicators: 'indicators' }
@@ -55,7 +57,7 @@ describe('Strategy Manager', () => {
 
   describe('#constructor', () => {
     it('creates a new instance', () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
 
       expect(manager.active).to.be.false
       expect(manager.ws2Manager).to.be.null
@@ -74,7 +76,7 @@ describe('Strategy Manager', () => {
 
   describe('#start method', async () => {
     it('should call the manager and watchdog plugin with correct arguments', async () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
@@ -97,7 +99,7 @@ describe('Strategy Manager', () => {
     })
 
     it('should set the ws object on auth success', async () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
@@ -105,7 +107,7 @@ describe('Strategy Manager', () => {
     })
 
     it('should throw error on auth failure', async () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
       onceWsStub.withArgs('event:auth:error').yields('auth err response')
       try {
         await manager.start({ apiKey, apiSecret, authToken })
@@ -117,7 +119,7 @@ describe('Strategy Manager', () => {
 
   describe('#execute method', async () => {
     it('should execute strategy and set the status as active', async () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
       expect(manager.ws2Manager).to.be.null
       expect(manager.active).to.be.false
 
@@ -142,7 +144,7 @@ describe('Strategy Manager', () => {
 
   describe('#close method', () => {
     it('closes the socket connections, falsifies the active status and clears strategy', async () => {
-      const manager = new StrategyManager(settings)
+      const manager = new StrategyManager(settings, bcast)
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
