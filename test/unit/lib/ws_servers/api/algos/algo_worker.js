@@ -79,6 +79,7 @@ describe('AlgoWorker', () => {
         state: {
           active: true,
           createdAt: 1633936704466,
+          id: 'id',
           gid: 'gid',
           name: 'name',
           args: 'args',
@@ -120,6 +121,7 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(WsStub.firstCall, ['opened', userId, 'bitfinex'])
       // send active instances
       assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', [[
+        aoInstance.state.id,
         aoInstance.state.gid,
         aoInstance.state.name,
         aoInstance.state.label,
@@ -201,6 +203,7 @@ describe('AlgoWorker', () => {
       loadAO: sandbox.stub()
     }
     const gid = 'gid'
+    const id = 'id'
     const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
@@ -209,7 +212,8 @@ describe('AlgoWorker', () => {
       args: {},
       i18n: {},
       createdAt,
-      gid
+      gid,
+      id
     }
 
     before(() => {
