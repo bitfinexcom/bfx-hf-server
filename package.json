@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "aes-js": "^3.1.2",
-    "bfx-api-node-core": "git+https://github.com/avsek477/bfx-api-node-core.git#orders-models-update",
+    "bfx-api-node-core": "^1.5.6",
     "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "^4.3.1",
     "bfx-hf-algo": "git+https://github.com/avsek477/bfx-hf-algo.git#add-visible-on-hit-for-algo-order",
