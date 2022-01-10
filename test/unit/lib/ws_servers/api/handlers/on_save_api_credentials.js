@@ -17,7 +17,7 @@ const stubVerifyPassword = sandbox.stub()
 const stubEncryptApiCred = sandbox.stub()
 const stubWsIsAuthorized = sandbox.stub()
 const stubCaptureException = sandbox.stub()
-const stubOpenAuthBfxConn = sandbox.stub()
+const stubStartConnections = sandbox.stub()
 const stubValidateModes = sandbox.stub()
 const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
   '../../../util/ws/send': stubWsSend,
@@ -32,7 +32,7 @@ const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
   '../../../util/encrypt_api_credentials': stubEncryptApiCred,
   '../../../util/ws/is_authorized': stubWsIsAuthorized,
   '../../../capture': { exception: stubCaptureException },
-  '../open_auth_bitfinex_connection': stubOpenAuthBfxConn,
+  '../start_connections': stubStartConnections,
   '../validate_modes': stubValidateModes
 })
 
@@ -51,17 +51,17 @@ describe('on save api credentials', () => {
     sandbox.reset()
   })
 
+  const dmsScope = 'web'
+  const hostedURL = 'hosted url'
   const server = {
     d: sandbox.stub(),
     db: {
-      Credential: { set: sandbox.stub() },
-      UserSettings: {
-        getAll: sandbox.stub()
-      }
+      Credential: { set: sandbox.stub() }
     },
     wsURL: 'ws url',
     restURL: 'rest url',
-    reconnectAlgoHost: sandbox.stub()
+    reconnectAlgoHost: sandbox.stub(),
+    hostedURL
   }
   const ws = {
     authPassword: 'secret',
@@ -73,7 +73,7 @@ describe('on save api credentials', () => {
       }
     },
     algoWorker: {
-      start: sandbox.stub()
+      updateAuthArgs: sandbox.stub()
     }
   }
   const authToken = 'authToken'
@@ -81,7 +81,7 @@ describe('on save api credentials', () => {
   const apiSecret = 'apiSecret'
   const formSent = 'paper'
   const mode = 'paper'
-  const msg = [null, authToken, apiKey, apiSecret, formSent, mode]
+  const msg = [null, authToken, apiKey, apiSecret, formSent, mode, dmsScope]
 
   it('should abort if request is invalid', async () => {
     stubWsValidateParams.returns(false)
@@ -159,7 +159,6 @@ describe('on save api credentials', () => {
   })
 
   it('should ignore if algo worker already started', async () => {
-    ws.algoWorker.isStarted = true
     await Handler(server, ws, msg)
 
     expect(ws.bitfinexCredentials).to.eql({ key: apiKey, secret: apiSecret })
@@ -172,20 +171,29 @@ describe('on save api credentials', () => {
       'Reconnecting with new credentials...',
       ['reconnectingWithNewCredentials']
     )
-    assert.notCalled(ws.algoWorker.start)
   })
 
   it('should start algo worker', async () => {
     ws.algoWorker.isStarted = false
-    const client = 'bfx exchange connection'
-    stubOpenAuthBfxConn.returns(client)
-    server.db.UserSettings.getAll.resolves({ userSettings: null })
+    stubStartConnections.resolves()
 
     await Handler(server, ws, msg)
 
-    assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
-    const { d, wsURL, restURL } = server
-    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey, apiSecret, userSettings: null, d, opts: { wsURL, restURL } })
-    expect(ws.clients.bitfinex).to.eql(client)
+    const { d, db, wsURL, restURL } = server
+    assert.calledWithExactly(stubStartConnections, {
+      db,
+      ws,
+      apiKey,
+      apiSecret,
+      d,
+      wsURL,
+      restURL,
+      dmsScope,
+      hostedURL
+    })
+    assert.calledWithExactly(ws.algoWorker.updateAuthArgs, {
+      apiKey,
+      apiSecret
+    })
   })
 })
