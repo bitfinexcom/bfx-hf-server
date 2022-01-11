@@ -18,10 +18,7 @@ describe('get user settings', () => {
 
     const result = await getUserSettings(db)
 
-    expect(result).to.eql({
-      ..._default,
-      dms: true
-    })
+    expect(result).to.eql(_default)
   })
 
   it('user has saved settings', async () => {
