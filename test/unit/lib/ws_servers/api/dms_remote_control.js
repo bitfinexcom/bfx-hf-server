@@ -89,7 +89,7 @@ describe('DmsRemoteControl', () => {
       .then(() => {
         assert.calledWithExactly(stubGenerateToken, {
           scope: 'api',
-          writePermission: false,
+          writePermission: true,
           ttl: 3600,
           caps: ['o']
         })
