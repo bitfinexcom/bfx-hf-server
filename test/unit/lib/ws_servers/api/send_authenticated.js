@@ -12,7 +12,7 @@ const stubWsSendError = sandbox.stub()
 const stubWsNotify = sandbox.stub()
 const stubFilterMarketData = sandbox.stub()
 const stubDecryptApiCreds = sandbox.stub()
-const stubOpenAuthBfxConn = sandbox.stub()
+const stubStartConnections = sandbox.stub()
 
 const SendAuthenticated = proxyquire('ws_servers/api/send_authenticated', {
   '../../util/ws/send': stubWsSend,
@@ -20,7 +20,7 @@ const SendAuthenticated = proxyquire('ws_servers/api/send_authenticated', {
   '../../util/ws/notify': { notifySuccess: stubWsNotify },
   '../../util/filter_market_data': stubFilterMarketData,
   '../../util/decrypt_api_credentials': stubDecryptApiCreds,
-  './open_auth_bitfinex_connection': stubOpenAuthBfxConn
+  './start_connections': stubStartConnections
 })
 
 describe('send authenticated', () => {
@@ -34,11 +34,7 @@ describe('send authenticated', () => {
 
   const ws = {
     authPassword: 'secret',
-    authControl: 'control',
-    algoWorker: {
-      start: sandbox.stub()
-    },
-    clients: {}
+    authControl: 'control'
   }
   const db = {
     Credential: {
@@ -49,7 +45,18 @@ describe('send authenticated', () => {
       getAll: sandbox.stub()
     }
   }
-  const opts = { mode: 'paper' }
+  const mode = 'paper'
+  const wsURL = 'ws url'
+  const restURL = 'rest url'
+  const hostedURL = 'hosted url'
+  const dmsScope = 'app'
+  const opts = {
+    mode,
+    wsURL,
+    restURL,
+    hostedURL,
+    dmsScope
+  }
   const marketData = 'market data'
   const d = sandbox.stub()
 
@@ -93,19 +100,17 @@ describe('send authenticated', () => {
     })
     assert.calledWithExactly(d, 'found stored credential encrypted with invalid password, deleting...')
     assert.calledWithExactly(db.Credential.rm, credentials)
-    assert.notCalled(ws.algoWorker.start)
   })
 
   it('should start algo worker', async () => {
     const credentials = 'credentials'
     const key = 'key'
     const secret = 'secret'
-    const client = 'bfx exchange connection'
 
     db.Credential.find.resolves([credentials])
     db.UserSettings.getAll.resolves({ userSettings: null })
     stubDecryptApiCreds.resolves({ key, secret })
-    stubOpenAuthBfxConn.returns(client)
+    stubStartConnections.resolves()
 
     await SendAuthenticated(ws, db, marketData, d, opts)
 
@@ -117,8 +122,16 @@ describe('send authenticated', () => {
       ['decryptedCredentialsFor', { target: 'Bitfinex', mode: 'paper' }]
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
-    assert.calledWithExactly(ws.algoWorker.start, { apiKey: key, apiSecret: secret, userId: 'HF_User' })
-    assert.calledWithExactly(stubOpenAuthBfxConn, { ws, apiKey: key, apiSecret: secret, userSettings: null, d, opts })
-    expect(ws.clients.bitfinex).to.eq(client)
+    assert.calledWithExactly(stubStartConnections, {
+      ws,
+      db,
+      apiKey: key,
+      apiSecret: secret,
+      d,
+      wsURL,
+      restURL,
+      hostedURL,
+      dmsScope
+    })
   })
 })

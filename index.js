@@ -18,6 +18,7 @@ const config = require('./config/algo_server.conf.json')
 module.exports = async ({
   bfxRestURL,
   bfxWSURL,
+  bfxHostedWsUrl,
   uiDBPath,
   algoDBPath,
   wsServerPort = 45000,
@@ -44,6 +45,7 @@ module.exports = async ({
     port: wsServerPort,
     restURL: bfxRestURL,
     wsURL: bfxWSURL,
+    hostedURL: bfxHostedWsUrl,
     algos: config.algos,
     logAlgoOpts,
     config
