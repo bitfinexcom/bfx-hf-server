@@ -9,8 +9,8 @@ const proxyquire = require('proxyquire').noCallThru()
 const sandbox = createSandbox()
 const WsStub = sandbox.stub()
 const restV2Stub = sandbox.stub()
-const executeStrategyStub = sandbox.stub()
 const ManagerConstructor = sandbox.stub()
+const StrategyExecutionConstructor = sandbox.stub()
 const WatchdogConstructor = sandbox.stub()
 const onceWsStub = sandbox.stub()
 const closeAllSocketStub = sandbox.stub()
@@ -22,8 +22,18 @@ const ManagerStub = {
   closeAllSockets: closeAllSocketStub
 }
 
+const StrategyExecutionStub = {
+  on: sandbox.stub(),
+  execute: sandbox.stub(),
+  stopExecution: sandbox.stub(),
+  generateResults: sandbox.stub()
+}
+
 const StrategyManager = proxyquire('../../../../../../lib/ws_servers/api/handlers/strategy/strategy_manager', {
-  'bfx-hf-strategy-exec': executeStrategyStub,
+  'bfx-hf-strategy-exec': sandbox.spy((args) => {
+    StrategyExecutionConstructor(args)
+    return StrategyExecutionStub
+  }),
   'bfx-api-node-rest': { RESTv2: restV2Stub },
   'bfx-api-node-core': {
     Manager: sandbox.spy((args) => {
@@ -131,11 +141,13 @@ describe('Strategy Manager', () => {
 
       await manager.execute(parsedStrategy, strategyOpts)
 
-      const executeStrategyArguments = executeStrategyStub.args[0]
-      expect(executeStrategyArguments[0]).to.eql({ ws, ...parsedStrategy })
-      expect(executeStrategyArguments[1]).to.eq(manager.ws2Manager)
-      expect(executeStrategyArguments[2]).to.eq(manager.rest)
-      expect(executeStrategyArguments[3]).to.eq(strategyOpts)
+      assert.calledWithExactly(StrategyExecutionConstructor, {
+        strategy: { ws, ...parsedStrategy },
+        ws2Manager: manager.ws2Manager,
+        rest: manager.rest,
+        strategyOpts
+      })
+      expect(StrategyExecutionStub.execute.calledOnce).to.be.true
 
       expect(manager.strategyArgs).to.eql(strategyOpts)
       expect(manager.active).to.be.true
@@ -150,8 +162,13 @@ describe('Strategy Manager', () => {
       await manager.start({ apiKey, apiSecret, authToken })
       await manager.execute(parsedStrategy, strategyOpts)
 
-      manager.close()
+      await manager.close()
+
       expect(closeAllSocketStub.calledOnce).to.be.true
+
+      expect(StrategyExecutionStub.stopExecution.calledOnce).to.be.true
+      expect(StrategyExecutionStub.generateResults.calledOnce).to.be.true
+
       expect(manager.active).to.be.false
       expect(manager.strategy).to.be.an('object').and.to.be.empty
     })
