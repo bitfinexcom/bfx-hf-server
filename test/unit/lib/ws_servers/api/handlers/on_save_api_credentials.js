@@ -32,7 +32,7 @@ const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
   '../../../util/encrypt_api_credentials': stubEncryptApiCred,
   '../../../util/ws/is_authorized': stubWsIsAuthorized,
   '../../../capture': { exception: stubCaptureException },
-  '../start_connections': stubStartConnections,
+  '../start_connections': { start: stubStartConnections },
   '../validate_modes': stubValidateModes
 })
 
