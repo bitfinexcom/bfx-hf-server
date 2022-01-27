@@ -5,21 +5,33 @@
 'use strict'
 
 const proxyquire = require('proxyquire').noCallThru()
-const { spy, assert, createSandbox } = require('sinon')
+const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
 
 describe('ConnectionManager', () => {
   const sandbox = createSandbox()
 
-  afterEach(() => {
-    sandbox.reset()
-  })
+  const openDmsSub = sandbox.stub()
+  const dmsControl = {
+    open: (args) => {
+      dmsControl.isOpen = true
+      return openDmsSub(args)
+    },
+    updateStatus: sandbox.stub()
+  }
+
+  const startWorkerStub = sandbox.stub()
+  const algoWorker = {
+    start: (args) => {
+      algoWorker.isOpen = true
+      return startWorkerStub(args)
+    }
+  }
 
   const ws = {
     clients: {},
-    algoWorker: {
-      start: sandbox.stub()
-    }
+    algoWorker,
+    dmsControl
   }
   const db = sandbox.stub()
   const d = sandbox.stub()
@@ -42,33 +54,21 @@ describe('ConnectionManager', () => {
     dmsScope
   }
 
-  const dmsControl = {
-    open: sandbox.stub(),
-    updateStatus: sandbox.stub()
-  }
-
-  const DmsRemoteControl = spy((constructorArgs) => {
-    expect(constructorArgs).to.be.eql({
-      hostedURL,
-      restURL,
-      apiKey,
-      apiSecret,
-      dmsScope
-    })
-    return dmsControl
-  })
   const openAuthBitfinexConnection = sandbox.stub()
   const getUserSettings = sandbox.stub()
-  const bfxClient = sandbox.stub()
+  const bfxClient = { isOpen: true }
+
+  afterEach(() => {
+    sandbox.reset()
+  })
 
   beforeEach(() => {
     getUserSettings.resolves({ dms: true })
-    dmsControl.open.resolves()
+    openDmsSub.resolves()
     openAuthBitfinexConnection.returns(bfxClient)
   })
 
   const manager = proxyquire('ws_servers/api/start_connections', {
-    './dms_remote_control': DmsRemoteControl,
     './open_auth_bitfinex_connection': openAuthBitfinexConnection,
     '../../util/user_settings': getUserSettings
   })
@@ -78,9 +78,9 @@ describe('ConnectionManager', () => {
 
     assert.calledWithExactly(getUserSettings, db)
     assert.notCalled(dmsControl.updateStatus)
-    assert.calledWithExactly(dmsControl.open)
+    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, scope: dmsScope })
 
-    assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
+    assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(openAuthBitfinexConnection, {
       ws,
@@ -102,8 +102,8 @@ describe('ConnectionManager', () => {
     await manager.start(args)
 
     assert.calledWithExactly(dmsControl.updateStatus, true)
-    assert.notCalled(dmsControl.open)
-    assert.notCalled(ws.algoWorker.start)
+    assert.notCalled(openDmsSub)
+    assert.notCalled(startWorkerStub)
     assert.notCalled(openAuthBitfinexConnection)
     expect(manager.starting).to.be.false
   })
@@ -114,8 +114,8 @@ describe('ConnectionManager', () => {
     await manager.start(args)
 
     assert.calledWithExactly(dmsControl.updateStatus, false)
-    assert.notCalled(dmsControl.open)
-    assert.notCalled(ws.algoWorker.start)
+    assert.notCalled(openDmsSub)
+    assert.notCalled(startWorkerStub)
     assert.notCalled(openAuthBitfinexConnection)
     expect(manager.starting).to.be.false
   })
@@ -131,9 +131,9 @@ describe('ConnectionManager', () => {
 
     assert.calledWithExactly(getUserSettings, db)
     assert.calledWithExactly(dmsControl.updateStatus, true)
-    assert.notCalled(dmsControl.open)
+    assert.notCalled(openDmsSub)
 
-    assert.calledWithExactly(ws.algoWorker.start, { apiKey, apiSecret, userId: 'HF_User' })
+    assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(openAuthBitfinexConnection, {
       ws,
