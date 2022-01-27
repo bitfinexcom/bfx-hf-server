@@ -53,18 +53,17 @@ describe('DmsRemoteControl', () => {
     }
   })
 
-  const dms = new DmsRemoteControl({
-    hostedURL,
-    restURL,
-    apiKey,
-    apiSecret,
-    dmsScope
-  })
-
   it('open', (done) => {
     sandbox.stub(Date, 'now').returns(0)
     stubGenerateToken.resolves([token])
 
+    const dms = new DmsRemoteControl({
+      hostedURL,
+      restURL,
+      apiKey,
+      apiSecret,
+      dmsScope
+    })
     expect(dms.authToken).to.be.undefined
 
     const openPromise = dms.open()
@@ -107,5 +106,36 @@ describe('DmsRemoteControl', () => {
 
         done()
       })
+  })
+
+  describe('update status', () => {
+    const dms = new DmsRemoteControl({
+      hostedURL,
+      restURL,
+      apiKey,
+      apiSecret,
+      dmsScope
+    })
+    dms.ws = wsConn
+
+    it('ignore if dms should remain active', () => {
+      const active = true
+      dms.updateStatus(active)
+
+      assert.notCalled(stubWsSend)
+    })
+
+    it('should disable and close', () => {
+      const active = false
+      dms.updateStatus(active)
+
+      assert.calledWithExactly(stubWsSend, JSON.stringify({
+        event: 'disable_dms',
+        scope: dmsScope
+      }))
+      expect(dms.stopped).to.be.true
+      expect(dms.pingInterval).to.be.undefined
+      assert.calledWithExactly(stubWsClose)
+    })
   })
 })
