@@ -121,11 +121,9 @@ describe('ConnectionManager', () => {
   })
 
   it('update credentials', async () => {
-    const apiKey = 'new key'
     const apiSecret = 'new secret'
     await manager.start({
       ...args,
-      apiKey,
       apiSecret
     })
 
