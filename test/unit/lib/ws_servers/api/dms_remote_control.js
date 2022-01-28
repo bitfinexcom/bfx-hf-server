@@ -29,7 +29,7 @@ describe('DmsRemoteControl', () => {
   const restURL = 'rest url'
   const apiKey = 'api key'
   const apiSecret = 'api secret'
-  const dmsScope = 'app'
+  const scope = 'app'
   const token = 'auth token'
 
   const DmsRemoteControl = proxyquire('ws_servers/api/dms_remote_control', {
@@ -53,21 +53,21 @@ describe('DmsRemoteControl', () => {
     }
   })
 
-  const dms = new DmsRemoteControl({
-    hostedURL,
-    restURL,
-    apiKey,
-    apiSecret,
-    dmsScope
-  })
-
   it('open', (done) => {
     sandbox.stub(Date, 'now').returns(0)
     stubGenerateToken.resolves([token])
 
+    const dms = new DmsRemoteControl({
+      hostedURL,
+      restURL
+    })
     expect(dms.authToken).to.be.undefined
 
-    const openPromise = dms.open()
+    const openPromise = dms.open({
+      apiKey,
+      apiSecret,
+      scope
+    })
 
     setImmediate(() => {
       wsConn.emit('open')
@@ -78,7 +78,7 @@ describe('DmsRemoteControl', () => {
         event: 'auth',
         token,
         dms: true,
-        dmsScope,
+        dmsScope: scope,
         noInteraction: true
       }))
 
@@ -101,11 +101,40 @@ describe('DmsRemoteControl', () => {
       .then(() => {
         dms.close()
 
-        expect(dms.stopped).to.be.true
+        expect(dms.isOpen).to.be.false
         expect(dms.pingInterval._destroyed).to.be.true
         assert.calledWithExactly(stubWsClose)
 
         done()
       })
+  })
+
+  describe('update status', () => {
+    const dms = new DmsRemoteControl({
+      hostedURL,
+      restURL
+    })
+    dms.ws = wsConn
+    dms.scope = scope
+
+    it('ignore if dms should remain active', () => {
+      const active = true
+      dms.updateStatus(active)
+
+      assert.notCalled(stubWsSend)
+    })
+
+    it('should disable and close', () => {
+      const active = false
+      dms.updateStatus(active)
+
+      assert.calledWithExactly(stubWsSend, JSON.stringify({
+        event: 'disable_dms',
+        scope
+      }))
+      expect(dms.isOpen).to.be.false
+      expect(dms.pingInterval).to.be.undefined
+      assert.calledWithExactly(stubWsClose)
+    })
   })
 })

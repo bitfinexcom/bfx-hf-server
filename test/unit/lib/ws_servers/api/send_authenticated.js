@@ -20,7 +20,7 @@ const SendAuthenticated = proxyquire('ws_servers/api/send_authenticated', {
   '../../util/ws/notify': { notifySuccess: stubWsNotify },
   '../../util/filter_market_data': stubFilterMarketData,
   '../../util/decrypt_api_credentials': stubDecryptApiCreds,
-  './start_connections': stubStartConnections
+  './start_connections': { start: stubStartConnections }
 })
 
 describe('send authenticated', () => {
