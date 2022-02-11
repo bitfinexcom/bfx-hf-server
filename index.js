@@ -21,6 +21,7 @@ module.exports = async ({
   bfxHostedWsUrl,
   uiDBPath,
   algoDBPath,
+  dataDir,
   wsServerPort = 45000,
   httpProxyPort = 45001
 }) => {
@@ -48,7 +49,8 @@ module.exports = async ({
     hostedURL: bfxHostedWsUrl,
     algos: config.algos,
     logAlgoOpts,
-    config
+    config,
+    dataDir
   })
 
   const proxy = new HttpProxy({
