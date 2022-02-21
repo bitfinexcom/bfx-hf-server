@@ -22,7 +22,7 @@
     "bfx-api-node-core": "^1.5.8",
     "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "^4.3.1",
-    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.11.1",
+    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.12.0",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-indicators": "git+https://github.com/bitfinexcom/bfx-hf-indicators.git#v2.1.1",
     "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v2.4.1",
