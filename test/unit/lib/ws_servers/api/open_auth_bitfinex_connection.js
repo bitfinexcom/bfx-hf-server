@@ -83,8 +83,6 @@ describe('openAuthBitfinexConnection', () => {
   })
 
   describe('data on main mode', () => {
-    openAuthBitfinexConnection({ ...args, isPaper: false })
-
     it('ws', () => {
       const msgData = [
         ['AAA', 'exchange', 8288.037842747914, null],
@@ -129,27 +127,38 @@ describe('openAuthBitfinexConnection', () => {
     })
 
     it('os', () => {
-      const msgData = null
+      const msgData = [
+        [89151302196, null, 1647033342683, 'tAAABBB', 1647033342683, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null],
+        [89151302197, null, 1647033350546, 'tAAABBB', 1647033350546, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 80, 0, 0, 0, false, false, false, false, false, null]
+      ]
+
       onData(['os', msgData])
-      assert.calledWithExactly(ws.send, JSON.stringify(null))
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.orders', 'bitfinex', msgData]))
     })
 
     it('on', () => {
-      const msgData = null
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null]
+
       onData(['on', msgData])
-      assert.calledWithExactly(ws.send, JSON.stringify(null))
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', msgData]))
     })
 
     it('ou', () => {
-      const msgData = null
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 60, 0, 0, 0, false, false, false, false, false, null]
+
       onData(['ou', msgData])
-      assert.calledWithExactly(ws.send, JSON.stringify(null))
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', msgData]))
     })
 
     it('oc', () => {
-      const msgData = null
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'CANCELED', 60, 0, 0, 0, false, false, false, false, false, null]
+
       onData(['oc', msgData])
-      assert.calledWithExactly(ws.send, JSON.stringify(null))
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order.close', 'bitfinex', msgData]))
     })
 
     it('n', () => {
@@ -162,6 +171,90 @@ describe('openAuthBitfinexConnection', () => {
       onData(['n', msgData])
 
       assert.calledWithExactly(ws.send, JSON.stringify(['notify', 'success', 'message', undefined]))
+    })
+  })
+
+  describe('data on paper mode', () => {
+    before(() => {
+      openAuthBitfinexConnection({ ...args, isPaper: true })
+    })
+
+    it('ws', () => {
+      const msgData = [
+        ['AAA', 'exchange', 8288.037842747914, null],
+        ['BBB', 'exchange', 76499450.78418736, null]
+      ]
+
+      onData(['ws', msgData])
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.balances', 'bitfinex', []]))
+    })
+
+    it('wu', () => {
+      const msgData = ['AAA', 'exchange', 8288.037842747914, 8288.037842747914]
+
+      onData(['wu', msgData])
+
+      assert.notCalled(ws.send)
+    })
+
+    it('ps', () => {
+      const msgData = [['tAAA:tBBB', 'ACTIVE', -0.00126, 61062.52380952381, 0.0025, 0, 27.43842, 35.66266582339881, 66863.46357142857, 10.000000000000002, null, 148595738, null, null, null, 1, null, 7.693878, 0.7693878000000001, null]]
+
+      onData(['ps', msgData])
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.positions', 'bitfinex', []]))
+    })
+
+    it('pu', () => {
+      const msgData = ['tAAA:tBBB', 'ACTIVE', -0.00126, 61062.52380952381, 0.0025, 0, 27.43842, 35.66266582339881, 66863.46357142857, 10.000000000000002, null, 148595738, null, null, null, 1, null, 7.693878, 0.7693878000000001, null]
+
+      onData(['pu', msgData])
+
+      assert.notCalled(ws.send)
+    })
+
+    it('pc', () => {
+      const msgData = ['tAAA:tBBB', 'ACTIVE', -0.00126, 61062.52380952381, 0.0025, 0, 27.43842, 35.66266582339881, 66863.46357142857, 10.000000000000002, null, 148595738, null, null, null, 1, null, 7.693878, 0.7693878000000001, null]
+
+      onData(['pc', msgData])
+
+      assert.notCalled(ws.send)
+    })
+
+    it('os', () => {
+      const msgData = [
+        [89151302196, null, 1647033342683, 'tAAABBB', 1647033342683, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null],
+        [89151302197, null, 1647033350546, 'tAAABBB', 1647033350546, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 80, 0, 0, 0, false, false, false, false, false, null]
+      ]
+
+      onData(['os', msgData])
+
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.orders', 'bitfinex', []]))
+    })
+
+    it('on', () => {
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null]
+
+      onData(['on', msgData])
+
+      assert.notCalled(ws.send)
+    })
+
+    it('ou', () => {
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 60, 0, 0, 0, false, false, false, false, false, null]
+
+      onData(['ou', msgData])
+
+      assert.notCalled(ws.send)
+    })
+
+    it('oc', () => {
+      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'CANCELED', 60, 0, 0, 0, false, false, false, false, false, null]
+
+      onData(['oc', msgData])
+
+      assert.notCalled(ws.send)
     })
   })
 })
