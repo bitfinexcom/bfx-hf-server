@@ -37,11 +37,17 @@ describe('AlgoWorker', () => {
     WsStub.reset()
   })
 
+  const signalTracerOpts = {
+    enabled: true,
+    dir: '/trace-dir'
+  }
+
   const settings = {
     dms: 'dms',
     affiliateCode: 'affiliate code',
     wsURL: 'ws url',
-    restURL: 'rest url'
+    restURL: 'rest url',
+    signalTracerOpts
   }
   const algoOrders = []
   const bcast = { ws: WsStub }
@@ -109,7 +115,8 @@ describe('AlgoWorker', () => {
           wsURL: settings.wsURL,
           restURL: settings.restURL,
           plugins: []
-        }
+        },
+        signalTracerOpts
       })
       // register events
       assert.calledWith(AOHostStub.on.firstCall, 'error')
