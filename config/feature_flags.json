@@ -1,0 +1,7 @@
+{
+  "strategy_editor": {
+    "docs": false,
+    "backtest": false,
+    "live_execution": false
+  }
+}
