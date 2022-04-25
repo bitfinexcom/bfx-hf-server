@@ -131,7 +131,8 @@ describe('send authenticated', () => {
       wsURL,
       restURL,
       hostedURL,
-      dmsScope
+      dmsScope,
+      isPaper: true
     })
   })
 })

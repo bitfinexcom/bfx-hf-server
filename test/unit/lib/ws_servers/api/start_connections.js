@@ -41,6 +41,7 @@ describe('ConnectionManager', () => {
   const restURL = 'rest url'
   const hostedURL = 'hosted url'
   const dmsScope = 'scope'
+  const isPaper = true
 
   const args = {
     ws,
@@ -51,7 +52,8 @@ describe('ConnectionManager', () => {
     wsURL,
     restURL,
     hostedURL,
-    dmsScope
+    dmsScope,
+    isPaper
   }
 
   const openAuthBitfinexConnection = sandbox.stub()
@@ -89,7 +91,8 @@ describe('ConnectionManager', () => {
       apiKey,
       apiSecret,
       wsURL,
-      restURL
+      restURL,
+      isPaper
     })
     expect(ws.clients).to.haveOwnProperty('bitfinex')
 
@@ -140,7 +143,8 @@ describe('ConnectionManager', () => {
       apiKey,
       apiSecret,
       wsURL,
-      restURL
+      restURL,
+      isPaper
     })
     expect(ws.clients).to.haveOwnProperty('bitfinex')
 
