@@ -14,12 +14,21 @@ const StrategyExecutionConstructor = sandbox.stub()
 const WatchdogConstructor = sandbox.stub()
 const onceWsStub = sandbox.stub()
 const closeAllSocketStub = sandbox.stub()
+const withDataSocketStub = sandbox.stub()
+const saveStrategyExecutionStub = sandbox.stub()
+
+const StrategyExecutionDBStub = {
+  StrategyExecution: {
+    set: saveStrategyExecutionStub.resolves()
+  }
+}
 
 const ManagerStub = {
   onWS: sandbox.stub(),
   onceWS: onceWsStub,
   openWS: sandbox.stub(),
-  closeAllSockets: closeAllSocketStub
+  closeAllSockets: closeAllSocketStub,
+  withDataSocket: withDataSocketStub
 }
 
 const StrategyExecutionStub = {
@@ -69,10 +78,9 @@ describe('Strategy Manager', () => {
     it('creates a new instance', () => {
       const manager = new StrategyManager(settings, bcast)
 
-      expect(manager.active).to.be.false
       expect(manager.ws2Manager).to.be.null
-      expect(manager.strategy).to.be.an('object')
-      expect(manager.strategyArgs).to.be.an('object')
+      expect(manager.ws).to.be.null
+      expect(manager.strategy.size).to.eq(0)
       expect(manager.wsURL).to.eq(wsURL)
       expect(manager.restURL).to.eq(restURL)
       expect(manager.settings).to.eq(settings)
@@ -113,7 +121,7 @@ describe('Strategy Manager', () => {
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
-      expect(manager.strategy.ws).to.eq(ws)
+      expect(manager.ws).to.eq(ws)
     })
 
     it('should throw error on auth failure', async () => {
@@ -131,13 +139,12 @@ describe('Strategy Manager', () => {
     it('should execute strategy and set the status as active', async () => {
       const manager = new StrategyManager(settings, bcast)
       expect(manager.ws2Manager).to.be.null
-      expect(manager.active).to.be.false
 
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
       expect(manager.ws2Manager).to.eq(ManagerStub)
-      expect(manager.strategy.ws).to.eq(ws)
+      expect(manager.ws).to.eq(ws)
 
       await manager.execute(parsedStrategy, strategyOpts)
 
@@ -148,29 +155,26 @@ describe('Strategy Manager', () => {
         strategyOpts
       })
       expect(StrategyExecutionStub.execute.calledOnce).to.be.true
-
-      expect(manager.strategyArgs).to.eql(strategyOpts)
-      expect(manager.active).to.be.true
+      expect(manager.strategy.size).to.eq(1)
     })
   })
 
   describe('#close method', () => {
     it('closes the socket connections, falsifies the active status and clears strategy', async () => {
-      const manager = new StrategyManager(settings, bcast)
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
       await manager.execute(parsedStrategy, strategyOpts)
 
-      await manager.close()
+      const strategyMapKeys = manager.strategy.keys()
 
-      expect(closeAllSocketStub.calledOnce).to.be.true
+      await manager.close(strategyMapKeys.next().value)
 
       expect(StrategyExecutionStub.stopExecution.calledOnce).to.be.true
       expect(StrategyExecutionStub.generateResults.calledOnce).to.be.true
-
-      expect(manager.active).to.be.false
-      expect(manager.strategy).to.be.an('object').and.to.be.empty
+      expect(manager.strategy.size).to.eq(0)
+      expect(StrategyExecutionDBStub.StrategyExecution.set.calledOnce).to.be.true
     })
   })
 })
