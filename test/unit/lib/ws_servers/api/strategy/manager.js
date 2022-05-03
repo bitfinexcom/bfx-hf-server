@@ -38,6 +38,10 @@ const StrategyExecutionStub = {
   generateResults: sandbox.stub()
 }
 
+const asyncTimeout = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 const StrategyManager = proxyquire('../../../../../../lib/ws_servers/api/handlers/strategy/strategy_manager', {
   'bfx-hf-strategy-exec': sandbox.spy((args) => {
     StrategyExecutionConstructor(args)
@@ -160,7 +164,7 @@ describe('Strategy Manager', () => {
   })
 
   describe('#close method', () => {
-    it('closes the socket connections, falsifies the active status and clears strategy', async () => {
+    it('stop live execution, generates results, clears strategy, saves strategy execution results in database and close all sockets', async () => {
       const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
@@ -175,6 +179,10 @@ describe('Strategy Manager', () => {
       expect(StrategyExecutionStub.generateResults.calledOnce).to.be.true
       expect(manager.strategy.size).to.eq(0)
       expect(StrategyExecutionDBStub.StrategyExecution.set.calledOnce).to.be.true
+
+      await asyncTimeout(manager.closeConnectionsDelay)
+
+      expect(closeAllSocketStub.calledOnce).to.be.true
     })
   })
 })
