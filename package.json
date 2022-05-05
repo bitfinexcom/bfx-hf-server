@@ -29,7 +29,7 @@
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
     "bfx-hf-strategy": "git+https://github.com/avsek477/bfx-hf-strategy.git#update-position-details",
     "bfx-hf-strategy-exec": "git+https://github.com/avsek477/bfx-hf-strategy-exec.git#emit-real-time-execution-results",
-    "bfx-hf-ui-config": "github:bitfinexcom/bfx-hf-ui-config#v1.4.0",
+    "bfx-hf-ui-config": "git+https://github.com/bitfinexcom/bfx-hf-ui-config#v1.5.0",
     "bfx-hf-util": "git+https://github.com/bitfinexcom/bfx-hf-util.git#v1.0.12",
     "bignumber.js": "^9.0.0",
     "bluebird": "^3.7.2",
