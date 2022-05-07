@@ -28,9 +28,13 @@ describe('ConnectionManager', () => {
     }
   }
 
+  const server = {
+    createAlgoWorker: sandbox.stub()
+  }
   const ws = {
     clients: {},
-    algoWorker,
+    workers: {},
+    algoWorker: { isStarted: false },
     dmsControl
   }
   const db = sandbox.stub()
@@ -41,9 +45,11 @@ describe('ConnectionManager', () => {
   const restURL = 'rest url'
   const hostedURL = 'hosted url'
   const dmsScope = 'scope'
+  const mode = 'main'
   const isPaper = true
 
   const args = {
+    server,
     ws,
     db,
     d,
@@ -53,6 +59,7 @@ describe('ConnectionManager', () => {
     restURL,
     hostedURL,
     dmsScope,
+    mode,
     isPaper
   }
 
@@ -76,6 +83,8 @@ describe('ConnectionManager', () => {
   })
 
   it('start', async () => {
+    server.createAlgoWorker.resolves(algoWorker)
+
     await manager.start(args)
 
     assert.calledWithExactly(getUserSettings, db)
@@ -124,6 +133,8 @@ describe('ConnectionManager', () => {
   })
 
   it('update credentials', async () => {
+    server.createAlgoWorker.resolves(algoWorker)
+
     const apiSecret = 'new secret'
     await manager.start({
       ...args,

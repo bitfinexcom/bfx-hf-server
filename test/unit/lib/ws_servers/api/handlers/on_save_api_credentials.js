@@ -181,6 +181,7 @@ describe('on save api credentials', () => {
 
     const { d, db, wsURL, restURL } = server
     assert.calledWithExactly(stubStartConnections, {
+      server,
       db,
       ws,
       apiKey,

@@ -32,6 +32,7 @@ describe('send authenticated', () => {
     sandbox.reset()
   })
 
+  const server = sandbox.stub()
   const ws = {
     authPassword: 'secret',
     authControl: 'control'
@@ -65,7 +66,7 @@ describe('send authenticated', () => {
     const markets = 'markets'
     stubFilterMarketData.returns(markets)
 
-    await SendAuthenticated(ws, db, marketData, d, opts)
+    await SendAuthenticated(server, ws, db, marketData, d, opts)
 
     assert.calledWith(stubFilterMarketData, marketData)
     assert.calledWithExactly(stubWsSend, ws, ['info.markets', 'bitfinex', markets])
@@ -77,7 +78,7 @@ describe('send authenticated', () => {
   it('should abort if could not find credentials', async () => {
     db.Credential.find.resolves([undefined])
 
-    await SendAuthenticated(ws, db, marketData, d, opts)
+    await SendAuthenticated(server, ws, db, marketData, d, opts)
 
     assert.calledWith(stubFilterMarketData, marketData)
     assert.calledWithExactly(stubWsSend, ws, ['info.auth_token', ws.authControl])
@@ -91,7 +92,7 @@ describe('send authenticated', () => {
     db.Credential.find.resolves([credentials])
     stubDecryptApiCreds.resolves(undefined)
 
-    await SendAuthenticated(ws, db, marketData, d, opts)
+    await SendAuthenticated(server, ws, db, marketData, d, opts)
 
     assert.calledOnce(db.Credential.find)
     assert.calledWithExactly(stubDecryptApiCreds, {
@@ -112,9 +113,11 @@ describe('send authenticated', () => {
     stubDecryptApiCreds.resolves({ key, secret })
     stubStartConnections.resolves()
 
-    await SendAuthenticated(ws, db, marketData, d, opts)
+    await SendAuthenticated(server, ws, db, marketData, d, opts)
 
     expect(ws.bitfinexCredentials).to.eql({ key, secret })
+    expect(ws.mode).to.eq(mode)
+    expect(ws.isPaper).to.be.true
     assert.calledWithExactly(
       stubWsNotify,
       ws,
@@ -123,6 +126,7 @@ describe('send authenticated', () => {
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
     assert.calledWithExactly(stubStartConnections, {
+      server,
       ws,
       db,
       apiKey: key,
@@ -132,6 +136,7 @@ describe('send authenticated', () => {
       restURL,
       hostedURL,
       dmsScope,
+      mode,
       isPaper: true
     })
   })
