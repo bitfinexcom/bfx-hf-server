@@ -72,10 +72,14 @@ describe('Strategy Manager', () => {
 
   const ws = { conn: 'connection details' }
   const parsedStrategy = { indicators: 'indicators' }
-  const strategyOpts = { symbol: 'symbol' }
+  const strategyOpts = { symbol: 'tETHUSD', tf: '1m', includeTrades: false }
+
+  after(() => {
+    sandbox.restore()
+  })
 
   afterEach(() => {
-    sandbox.restore()
+    sandbox.reset()
   })
 
   describe('#constructor', () => {
@@ -183,6 +187,110 @@ describe('Strategy Manager', () => {
       await asyncTimeout(manager.closeConnectionsDelay)
 
       expect(closeAllSocketStub.calledOnce).to.be.true
+    })
+  })
+
+  describe('#_unsubscribeChannels', () => {
+    it('should not unsubscribe if one of the remaining active strategies is subscribed to the same candle channel', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', {
+        ...ws,
+        channels: {
+          1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
+        }
+      })
+      sandbox.stub(manager, '_unsubscribe')
+
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOpts)
+
+      const strategyMapKeys = manager.strategy.keys()
+      await manager.close(strategyMapKeys.next().value)
+
+      expect(manager._unsubscribe.called).to.be.false
+    })
+
+    it('should unsubscribe if none of the remaining active strategies is not subscribed to the same candle channel', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', {
+        ...ws,
+        channels: {
+          1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
+        }
+      })
+      sandbox.stub(manager, '_unsubscribe')
+
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, strategyOpts)
+
+      const strategyMapKeys = manager.strategy.keys()
+      await manager.close(strategyMapKeys.next().value)
+
+      assert.calledWithExactly(manager._unsubscribe, 'candles', { key: 'trade:1m:tETHUSD' })
+    })
+
+    it('should not unsubscribe if one of the remaining active strategies is subscribed to the same candle and trade channel', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', {
+        ...ws,
+        channels: {
+          1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' },
+          2: { channel: 'trades', chanId: 2, symbol: 'tETHUSD', pair: 'ETHUSD' }
+        }
+      })
+      sandbox.stub(manager, '_unsubscribe')
+
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+
+      const strategyMapKeys = manager.strategy.keys()
+      await manager.close(strategyMapKeys.next().value)
+
+      expect(manager._unsubscribe.called).to.be.false
+    })
+
+    it('should unsubscribe if none of the remaining active strategies is not subscribed to the same candle and trade channels', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', {
+        ...ws,
+        channels: {
+          1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' },
+          2: { channel: 'trades', chanId: 2, symbol: 'tETHUSD', pair: 'ETHUSD' }
+        }
+      })
+      sandbox.stub(manager, '_unsubscribe')
+
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+
+      const strategyMapKeys = manager.strategy.keys()
+      await manager.close(strategyMapKeys.next().value)
+
+      assert.calledWithExactly(manager._unsubscribe, 'candles', { key: 'trade:1m:tETHUSD' })
+      assert.calledWithExactly(manager._unsubscribe, 'trades', { symbol: 'tETHUSD' })
+    })
+
+    it('should unsubscribe only trades channel if none of the remaining active strategies are subscribed to the same trade channel', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', {
+        ...ws,
+        channels: {
+          1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' },
+          2: { channel: 'trades', chanId: 2, symbol: 'tETHUSD', pair: 'ETHUSD' }
+        }
+      })
+      sandbox.stub(manager, '_unsubscribe')
+
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+      await manager.execute(parsedStrategy, strategyOpts)
+
+      const strategyMapKeys = manager.strategy.keys()
+      await manager.close(strategyMapKeys.next().value)
+
+      assert.calledWithExactly(manager._unsubscribe, 'trades', { symbol: 'tETHUSD' })
     })
   })
 })
