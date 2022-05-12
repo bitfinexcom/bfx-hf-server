@@ -293,4 +293,21 @@ describe('Strategy Manager', () => {
       assert.calledWithExactly(manager._unsubscribe, 'trades', { symbol: 'tETHUSD' })
     })
   })
+
+  describe('#stopAllActiveStrategies', () => {
+    it('should stop all active strategies', async () => {
+      const manager = new StrategyManager(settings, bcast, StrategyExecutionDBStub)
+      onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
+
+      sandbox.stub(manager, 'close')
+      await manager.start({ apiKey, apiSecret, authToken })
+      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOpts)
+
+      await manager.stopAllActiveStrategies()
+
+      expect(manager.close.calledThrice).to.be.true
+    })
+  })
 })
