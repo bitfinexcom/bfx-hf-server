@@ -25,7 +25,7 @@
     "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.13.0",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-indicators": "git+https://github.com/bitfinexcom/bfx-hf-indicators.git#v2.1.1",
-    "bfx-hf-models": "git+https://github.com/avsek477/bfx-hf-models.git#strategy-execution",
+    "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v2.6.0",
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
     "bfx-hf-strategy": "git+https://github.com/bitfinexcom/bfx-hf-strategy.git#v1.2.4",
     "bfx-hf-strategy-exec": "git+https://github.com/bitfinexcom/bfx-hf-strategy-exec.git#v1.2.3",
