@@ -103,17 +103,56 @@ describe('ConnectionManager', () => {
       restURL,
       isPaper
     })
-    expect(ws.clients).to.haveOwnProperty('bitfinex')
+    expect(ws.clients.bitfinex).not.to.be.empty
+    expect(ws.clients.main).not.to.be.empty
 
-    expect(manager.apiKey).to.be.eq(apiKey)
-    expect(manager.apiSecret).to.be.eq(apiSecret)
+    expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
     expect(manager.starting).to.be.false
   })
 
-  it('duplicated start', async () => {
+  it('toggle mode', async () => {
+    server.createAlgoWorker.resolves(algoWorker)
+
+    const mode = 'paper'
+    const apiKey = 'paper key'
+    const apiSecret = 'paper secret'
+    const isPaper = true
+
+    await manager.start({
+      ...args,
+      mode,
+      apiKey,
+      apiSecret
+    })
+
+    assert.calledWithExactly(getUserSettings, db)
+
+    assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
+
+    assert.calledWithExactly(openAuthBitfinexConnection, {
+      ws,
+      d,
+      dms: false,
+      apiKey,
+      apiSecret,
+      wsURL,
+      restURL,
+      isPaper
+    })
+    expect(ws.clients.bitfinex).not.to.be.empty
+    expect(ws.clients.main).not.to.be.empty
+
+    expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.paper.apiSecret).to.be.eq(apiSecret)
+    expect(manager.starting).to.be.false
+  })
+
+  it('returns to previous mode', async () => {
     await manager.start(args)
 
     assert.calledWithExactly(dmsControl.updateStatus, true)
+    assert.notCalled(server.createAlgoWorker)
     assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
     assert.notCalled(openAuthBitfinexConnection)
@@ -159,8 +198,8 @@ describe('ConnectionManager', () => {
     })
     expect(ws.clients).to.haveOwnProperty('bitfinex')
 
-    expect(manager.apiKey).to.be.eq(apiKey)
-    expect(manager.apiSecret).to.be.eq(apiSecret)
+    expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
     expect(manager.starting).to.be.false
   })
 })
