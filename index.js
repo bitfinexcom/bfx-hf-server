@@ -21,6 +21,7 @@ module.exports = async ({
   bfxHostedWsUrl,
   uiDBPath,
   algoDBPath,
+  strategyExecutionPath,
   dataDir,
   wsServerPort = 45000,
   httpProxyPort = 45001
@@ -35,6 +36,11 @@ module.exports = async ({
     adapter: HFDBLowDBAdapter({ dbPath: algoDBPath })
   })
 
+  const strategyExecutionDB = new HFDB({
+    schema: HFDBDummySchema,
+    adapter: HFDBLowDBAdapter({ dbPath: strategyExecutionPath })
+  })
+
   const logAlgoOpts = {
     logAlgo: ALGO_LOG ? ALGO_LOG === 'true' : false,
     logAlgoDir: ALGO_LOG_DIR || ''
@@ -43,6 +49,7 @@ module.exports = async ({
   const api = new APIWSServer({
     algoDB,
     db: apiDB,
+    strategyExecutionDB,
     port: wsServerPort,
     restURL: bfxRestURL,
     wsURL: bfxWSURL,
