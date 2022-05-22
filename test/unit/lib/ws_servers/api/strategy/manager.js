@@ -16,6 +16,7 @@ const onceWsStub = sandbox.stub()
 const closeAllSocketStub = sandbox.stub()
 const withDataSocketStub = sandbox.stub()
 const saveStrategyExecutionStub = sandbox.stub()
+const startPerformanceWatchers = sandbox.stub()
 
 const StrategyExecutionDBStub = {
   StrategyExecution: {
@@ -38,6 +39,14 @@ const StrategyExecutionStub = {
   generateResults: sandbox.stub()
 }
 
+const PriceFeedStub = {
+  close: sandbox.stub()
+}
+
+const PerformanceManagerStub = {
+  close: sandbox.stub()
+}
+
 const asyncTimeout = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -57,7 +66,16 @@ const StrategyManager = proxyquire('../../../../../../lib/ws_servers/api/handler
   'bfx-api-node-plugin-wd': sandbox.spy((args) => {
     WatchdogConstructor(args)
     return 'watchdog'
-  })
+  }),
+  'bfx-hf-strategy-perf': {
+    PriceFeed: sandbox.spy((args) => {
+      return PriceFeedStub
+    }),
+    PerformanceManager: sandbox.spy((args) => {
+      return PerformanceManagerStub
+    }),
+    StartWatchers: startPerformanceWatchers
+  }
 })
 
 describe('Strategy Manager', () => {
@@ -71,7 +89,11 @@ describe('Strategy Manager', () => {
   const bcast = { ws: WsStub }
 
   const ws = { conn: 'connection details' }
-  const parsedStrategy = { indicators: 'indicators' }
+  const parsedStrategy = {
+    indicators: 'indicators',
+    priceFeed: PriceFeedStub,
+    perfManager: PerformanceManagerStub
+  }
   const strategyOpts = { symbol: 'tETHUSD', tf: '1m', includeTrades: false }
 
   after(() => {
@@ -160,7 +182,9 @@ describe('Strategy Manager', () => {
         strategy: { ws, ...parsedStrategy },
         ws2Manager: manager.ws2Manager,
         rest: manager.rest,
-        strategyOpts
+        strategyOpts,
+        priceFeed: PriceFeedStub,
+        perfManager: PerformanceManagerStub
       })
       expect(StrategyExecutionStub.execute.calledOnce).to.be.true
       expect(manager.strategy.size).to.eq(1)
