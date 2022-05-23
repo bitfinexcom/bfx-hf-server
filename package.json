@@ -29,7 +29,7 @@
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
     "bfx-hf-strategy": "git+https://github.com/tarcisiozf/bfx-hf-strategy.git#add-strategy-safe-guards",
     "bfx-hf-strategy-exec": "git+https://github.com/tarcisiozf/bfx-hf-strategy-exec.git#add-strategy-safe-guards",
-    "bfx-hf-strategy-perf": "git+https://github.com/tarcisiozf/bfx-hf-strategy-perf.git",
+    "bfx-hf-strategy-perf": "git+https://github.com/tarcisiozf/bfx-hf-strategy-perf.git#move-to-repo",
     "bfx-hf-ui-config": "git+https://github.com/bitfinexcom/bfx-hf-ui-config#v1.5.0",
     "bfx-hf-util": "git+https://github.com/bitfinexcom/bfx-hf-util.git#v1.0.12",
     "bignumber.js": "^9.0.0",
