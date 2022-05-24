@@ -47,7 +47,6 @@
     "ws": "^8.2.1"
   },
   "scripts": {
-    "preinstall": "git config core.hooksPath dev/hooks",
     "start": "NODE_PATH=lib node examples/server.js",
     "lint": "standard",
     "coverage": "nyc --all --reporter lcov npm run unit",
