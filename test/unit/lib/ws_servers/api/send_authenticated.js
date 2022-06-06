@@ -10,7 +10,6 @@ const sandbox = createSandbox()
 const stubWsSend = sandbox.stub()
 const stubWsSendError = sandbox.stub()
 const stubWsNotify = sandbox.stub()
-const stubFilterMarketData = sandbox.stub()
 const stubDecryptApiCreds = sandbox.stub()
 const stubStartConnections = sandbox.stub()
 
@@ -18,7 +17,6 @@ const SendAuthenticated = proxyquire('ws_servers/api/send_authenticated', {
   '../../util/ws/send': stubWsSend,
   '../../util/ws/send_error': stubWsSendError,
   '../../util/ws/notify': { notifySuccess: stubWsNotify },
-  '../../util/filter_market_data': stubFilterMarketData,
   '../../util/decrypt_api_credentials': stubDecryptApiCreds,
   './start_connections': { start: stubStartConnections }
 })
@@ -57,18 +55,15 @@ describe('send authenticated', () => {
     hostedURL,
     dmsScope
   }
-  const marketData = 'market data'
+  const marketData = new Map()
   const d = sandbox.stub()
 
   it('should send error if it is not authenticated', async () => {
     const ws = { authPassword: undefined, authControl: undefined }
-    const markets = 'markets'
-    stubFilterMarketData.returns(markets)
 
     await SendAuthenticated(ws, db, marketData, d, opts)
 
-    assert.calledWith(stubFilterMarketData, marketData)
-    assert.calledWithExactly(stubWsSend, ws, ['info.markets', 'bitfinex', markets])
+    assert.calledWithExactly(stubWsSend, ws, ['info.markets', 'bitfinex', { sandboxMarkets: {}, liveMarkets: {} }])
     assert.calledWithExactly(stubWsSendError, ws, 'Not authenticated')
     assert.notCalled(db.Credential.find)
     assert.notCalled(stubDecryptApiCreds)
@@ -79,7 +74,6 @@ describe('send authenticated', () => {
 
     await SendAuthenticated(ws, db, marketData, d, opts)
 
-    assert.calledWith(stubFilterMarketData, marketData)
     assert.calledWithExactly(stubWsSend, ws, ['info.auth_token', ws.authControl])
     assert.calledWithExactly(stubWsNotify, ws, 'Authenticated', ['authenticated'])
     assert.calledWithExactly(db.Credential.find, [['mode', '=', opts.mode]])
