@@ -226,8 +226,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOpts)
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -266,8 +266,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
-      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOpts, includeTrades: true })
+      await manager.execute({ ...parsedStrategy, gid: 2 }, { ...strategyOpts, includeTrades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -308,8 +308,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOpts, includeTrades: true })
+      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -325,9 +325,9 @@ describe('Strategy Manager', () => {
 
       sandbox.stub(manager, 'close')
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOpts)
-      await manager.execute(parsedStrategy, strategyOpts)
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, gid: 3 }, strategyOpts)
 
       await manager.stopAllActiveStrategies()
 
