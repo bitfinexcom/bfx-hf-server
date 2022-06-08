@@ -94,7 +94,11 @@ describe('Strategy Manager', () => {
     priceFeed: PriceFeedStub,
     perfManager: PerformanceManagerStub
   }
-  const strategyOptions = { symbol: 'tETHUSD', timeframe: '1m', trades: false }
+  const strategyOptions = {
+    symbol: 'tETHUSD',
+    timeframe: '1m',
+    trades: false
+  }
 
   after(() => {
     sandbox.restore()
@@ -226,8 +230,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOptions)
-      await manager.execute(parsedStrategy, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOptions)
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -266,8 +270,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, { ...strategyOptions, includeTrades: true })
-      await manager.execute(parsedStrategy, { ...strategyOptions, includeTrades: true })
+      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOptions, trades: true })
+      await manager.execute({ ...parsedStrategy, gid: 2 }, { ...strategyOptions, trades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -308,8 +312,7 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, { ...strategyOptions, trades: true })
-      await manager.execute(parsedStrategy, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOptions, trades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -325,9 +328,9 @@ describe('Strategy Manager', () => {
 
       sandbox.stub(manager, 'close')
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOptions)
-      await manager.execute(parsedStrategy, strategyOptions)
-      await manager.execute(parsedStrategy, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, gid: 3 }, strategyOptions)
 
       await manager.stopAllActiveStrategies()
 
