@@ -94,7 +94,11 @@ describe('Strategy Manager', () => {
     priceFeed: PriceFeedStub,
     perfManager: PerformanceManagerStub
   }
-  const strategyOpts = { symbol: 'tETHUSD', tf: '1m', includeTrades: false }
+  const strategyOptions = {
+    symbol: 'tETHUSD',
+    timeframe: '1m',
+    trades: false
+  }
 
   after(() => {
     sandbox.restore()
@@ -176,13 +180,13 @@ describe('Strategy Manager', () => {
       expect(manager.ws2Manager).to.eq(ManagerStub)
       expect(manager.ws).to.eq(ws)
 
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOptions)
 
       assert.calledWithExactly(StrategyExecutionConstructor, {
         strategy: { ws, ...parsedStrategy },
         ws2Manager: manager.ws2Manager,
         rest: manager.rest,
-        strategyOpts,
+        strategyOptions,
         priceFeed: PriceFeedStub,
         perfManager: PerformanceManagerStub
       })
@@ -197,14 +201,14 @@ describe('Strategy Manager', () => {
       onceWsStub.withArgs('event:auth:success').yields('auth response', ws)
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOptions)
 
       const strategyMapKeys = manager.strategy.keys()
 
       await manager.close(strategyMapKeys.next().value)
 
       expect(StrategyExecutionStub.stopExecution.calledOnce).to.be.true
-      expect(StrategyExecutionStub.generateResults.calledOnce).to.be.true
+      expect(StrategyExecutionStub.generateResults.calledThrice).to.be.true
       expect(manager.strategy.size).to.eq(0)
       expect(StrategyExecutionDBStub.StrategyExecution.set.calledOnce).to.be.true
 
@@ -226,8 +230,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOpts)
-      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, id: 1 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, id: 2 }, strategyOptions)
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -246,7 +250,7 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, strategyOpts)
+      await manager.execute(parsedStrategy, strategyOptions)
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -266,8 +270,8 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOpts, includeTrades: true })
-      await manager.execute({ ...parsedStrategy, gid: 2 }, { ...strategyOpts, includeTrades: true })
+      await manager.execute({ ...parsedStrategy, id: 1 }, { ...strategyOptions, trades: true })
+      await manager.execute({ ...parsedStrategy, id: 2 }, { ...strategyOptions, trades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -287,7 +291,7 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute(parsedStrategy, { ...strategyOpts, includeTrades: true })
+      await manager.execute(parsedStrategy, { ...strategyOptions, trades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -308,8 +312,7 @@ describe('Strategy Manager', () => {
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute({ ...parsedStrategy, gid: 1 }, { ...strategyOpts, includeTrades: true })
-      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, id: 1 }, { ...strategyOptions, trades: true })
 
       const strategyMapKeys = manager.strategy.keys()
       await manager.close(strategyMapKeys.next().value)
@@ -325,9 +328,9 @@ describe('Strategy Manager', () => {
 
       sandbox.stub(manager, 'close')
       await manager.start({ apiKey, apiSecret, authToken })
-      await manager.execute({ ...parsedStrategy, gid: 1 }, strategyOpts)
-      await manager.execute({ ...parsedStrategy, gid: 2 }, strategyOpts)
-      await manager.execute({ ...parsedStrategy, gid: 3 }, strategyOpts)
+      await manager.execute({ ...parsedStrategy, id: 1 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, id: 2 }, strategyOptions)
+      await manager.execute({ ...parsedStrategy, id: 3 }, strategyOptions)
 
       await manager.stopAllActiveStrategies()
 
