@@ -1,6 +1,6 @@
 {
   "name": "bfx-hf-server",
-  "version": "6.0.1",
+  "version": "6.1.0",
   "description": "HF server bundle",
   "author": "Bitfinex",
   "license": "Apache-2.0",
@@ -25,7 +25,7 @@
     "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.13.1",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-indicators": "git+https://github.com/bitfinexcom/bfx-hf-indicators.git#v2.1.1",
-    "bfx-hf-models": "git+https://github.com/dmytroshch/bfx-hf-models.git#feature/ide",
+    "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v4.0.0",
     "bfx-hf-models-adapter-lowdb": "git+https://github.com/bitfinexcom/bfx-hf-models-adapter-lowdb.git#v1.0.5",
     "bfx-hf-strategy": "git+https://github.com/bitfinexcom/bfx-hf-strategy.git#v1.5.0",
     "bfx-hf-strategy-exec": "git+https://github.com/bitfinexcom/bfx-hf-strategy-exec.git#v2.0.1",
