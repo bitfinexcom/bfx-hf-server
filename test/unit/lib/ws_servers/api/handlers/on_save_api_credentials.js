@@ -63,18 +63,18 @@ describe('on save api credentials', () => {
     reconnectAlgoHost: sandbox.stub(),
     hostedURL
   }
+  const bfxClient = {
+    setAuthArgs: sandbox.stub(),
+    reconnect: sandbox.stub()
+  }
+  const algoWorker = {
+    updateAuthArgs: sandbox.stub()
+  }
   const ws = {
     authPassword: 'secret',
     authControl: 'auth control',
-    clients: {
-      bitfinex: {
-        setAuthArgs: sandbox.stub(),
-        reconnect: sandbox.stub()
-      }
-    },
-    algoWorker: {
-      updateAuthArgs: sandbox.stub()
-    }
+    getClient: () => bfxClient,
+    getAlgoWorker: () => algoWorker
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -162,8 +162,8 @@ describe('on save api credentials', () => {
     await Handler(server, ws, msg)
 
     expect(ws.bitfinexCredentials).to.eql({ key: apiKey, secret: apiSecret })
-    assert.calledWithExactly(ws.clients.bitfinex.setAuthArgs, { apiKey, apiSecret })
-    assert.calledWithExactly(ws.clients.bitfinex.reconnect)
+    assert.calledWithExactly(bfxClient.setAuthArgs, { apiKey, apiSecret })
+    assert.calledWithExactly(bfxClient.reconnect)
     assert.calledWithExactly(server.reconnectAlgoHost, ws)
     assert.calledWithExactly(
       stubNotifySuccess,
@@ -174,7 +174,7 @@ describe('on save api credentials', () => {
   })
 
   it('should start algo worker', async () => {
-    ws.algoWorker.isStarted = false
+    algoWorker.isStarted = false
     stubStartConnections.resolves()
 
     await Handler(server, ws, msg)
@@ -192,7 +192,7 @@ describe('on save api credentials', () => {
       dmsScope,
       hostedURL
     })
-    assert.calledWithExactly(ws.algoWorker.updateAuthArgs, {
+    assert.calledWithExactly(algoWorker.updateAuthArgs, {
       apiKey,
       apiSecret
     })
