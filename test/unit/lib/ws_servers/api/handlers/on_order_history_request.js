@@ -28,8 +28,8 @@ describe('on order history', () => {
         expect(args).to.eql({
           transform: true,
           url: server.restURL,
-          apiKey: ws.bitfinexCredentials.key,
-          apiSecret: ws.bitfinexCredentials.secret
+          apiKey: bitfinexCredentials.apiKey,
+          apiSecret: bitfinexCredentials.apiSecret
         })
 
         return {
@@ -43,12 +43,13 @@ describe('on order history', () => {
     restURL: 'rest-url',
     d: sandbox.stub()
   }
+  const bitfinexCredentials = {
+    apiKey: 'api key',
+    apiSecret: 'api secret'
+  }
   const ws = {
     isPaper: false,
-    bitfinexCredentials: {
-      key: 'api key',
-      secret: 'api secret'
-    }
+    getCredentials: () => bitfinexCredentials
   }
   const type = 'get.order_history'
   const authToken = 'auth token'

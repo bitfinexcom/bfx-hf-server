@@ -69,7 +69,10 @@ describe('openAuthBitfinexConnection', () => {
       dms: 0, apiKey, apiSecret, authToken
     })
     assert.calledWithExactly(bfxClient.openWS, {
-      apiKey, apiSecret, authToken
+      apiKey,
+      apiSecret,
+      authToken,
+      channelFilters: [ 'trading', 'wallet', 'notify' ]
     })
     assert.calledWithExactly(bfxClient.openSocket)
 

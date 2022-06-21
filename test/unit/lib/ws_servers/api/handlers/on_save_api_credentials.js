@@ -74,7 +74,15 @@ describe('on save api credentials', () => {
     authPassword: 'secret',
     authControl: 'auth control',
     getClient: () => bfxClient,
-    getAlgoWorker: () => algoWorker
+    getAlgoWorker: () => algoWorker,
+    authenticateSession: (args) => {
+      expect(args).to.be.eql({
+        apiKey,
+        apiSecret,
+        dmsScope,
+        mode
+      })
+    }
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -180,18 +188,7 @@ describe('on save api credentials', () => {
     await Handler(server, ws, msg)
 
     const { d, db, wsURL, restURL } = server
-    assert.calledWithExactly(stubStartConnections, {
-      server,
-      db,
-      ws,
-      apiKey,
-      apiSecret,
-      d,
-      wsURL,
-      restURL,
-      dmsScope,
-      hostedURL
-    })
+    assert.calledWithExactly(stubStartConnections, server, ws)
     assert.calledWithExactly(algoWorker.updateAuthArgs, {
       apiKey,
       apiSecret
