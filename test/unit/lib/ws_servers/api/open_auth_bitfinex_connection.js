@@ -72,7 +72,7 @@ describe('openAuthBitfinexConnection', () => {
       apiKey,
       apiSecret,
       authToken,
-      channelFilters: [ 'trading', 'wallet', 'notify' ]
+      channelFilters: ['trading', 'wallet', 'notify']
     })
     assert.calledWithExactly(bfxClient.openSocket)
 

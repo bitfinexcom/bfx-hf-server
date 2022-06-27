@@ -86,7 +86,7 @@ describe('Strategy Manager', () => {
   const apiSecret = 'api secret'
   const authToken = 'auth token'
   const settings = { wsURL, restURL, dms, closeConnectionsDelay: 500 }
-  const bcast = { ws: WsStub }
+  const bcast = WsStub
 
   const ws = { conn: 'connection details' }
   const parsedStrategy = {

@@ -50,7 +50,7 @@ describe('AlgoWorker', () => {
     signalTracerOpts
   }
   const algoOrders = []
-  const bcast = { ws: WsStub }
+  const bcast = WsStub
   const algoDB = { AlgoOrder: { set: sandbox.stub() } }
   const logAlgoOpts = null
   const marketData = new Map()
