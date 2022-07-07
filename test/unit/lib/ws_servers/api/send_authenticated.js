@@ -89,7 +89,7 @@ describe('send authenticated', () => {
 
     await SendAuthenticated(server, ws, opts)
 
-    assert.calledWithExactly(stubWsSend, ws, ['info.auth_token', ws.authControl, 'paper', false])
+    assert.calledWithExactly(stubWsSend, ws, ['info.auth_token', ws.authControl, 'paper'])
     assert.calledWithExactly(stubWsNotify, ws, 'Authenticated', ['authenticated'])
     assert.calledWithExactly(db.Credential.find, [['mode', '=', opts.mode]])
     assert.notCalled(stubDecryptApiCreds)
