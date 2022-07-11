@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "aes-js": "^3.1.2",
-    "bfx-api-node-core": "git+https://github.com/tarcisiozf/bfx-api-node-core.git#auth-filter",
+    "bfx-api-node-core": "^1.6.0",
     "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "^4.3.1",
     "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.13.1",
