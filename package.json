@@ -1,6 +1,6 @@
 {
   "name": "bfx-hf-server",
-  "version": "6.3.0",
+  "version": "7.0.0",
   "description": "HF server bundle",
   "author": "Bitfinex",
   "license": "Apache-2.0",
@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "aes-js": "^3.1.2",
-    "bfx-api-node-core": "^1.5.8",
+    "bfx-api-node-core": "^1.6.0",
     "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "^4.3.1",
     "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo.git#v4.13.1",

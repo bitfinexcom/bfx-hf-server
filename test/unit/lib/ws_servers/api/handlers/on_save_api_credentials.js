@@ -63,17 +63,25 @@ describe('on save api credentials', () => {
     reconnectAlgoHost: sandbox.stub(),
     hostedURL
   }
+  const bfxClient = {
+    setAuthArgs: sandbox.stub(),
+    reconnect: sandbox.stub()
+  }
+  const algoWorker = {
+    updateAuthArgs: sandbox.stub()
+  }
   const ws = {
     authPassword: 'secret',
     authControl: 'auth control',
-    clients: {
-      bitfinex: {
-        setAuthArgs: sandbox.stub(),
-        reconnect: sandbox.stub()
-      }
-    },
-    algoWorker: {
-      updateAuthArgs: sandbox.stub()
+    getClient: () => bfxClient,
+    getAlgoWorker: () => algoWorker,
+    authenticateSession: (args) => {
+      expect(args).to.be.eql({
+        apiKey,
+        apiSecret,
+        dmsScope,
+        mode
+      })
     }
   }
   const authToken = 'authToken'
@@ -162,8 +170,8 @@ describe('on save api credentials', () => {
     await Handler(server, ws, msg)
 
     expect(ws.bitfinexCredentials).to.eql({ key: apiKey, secret: apiSecret })
-    assert.calledWithExactly(ws.clients.bitfinex.setAuthArgs, { apiKey, apiSecret })
-    assert.calledWithExactly(ws.clients.bitfinex.reconnect)
+    assert.calledWithExactly(bfxClient.setAuthArgs, { apiKey, apiSecret })
+    assert.calledWithExactly(bfxClient.reconnect)
     assert.calledWithExactly(server.reconnectAlgoHost, ws)
     assert.calledWithExactly(
       stubNotifySuccess,
@@ -174,24 +182,13 @@ describe('on save api credentials', () => {
   })
 
   it('should start algo worker', async () => {
-    ws.algoWorker.isStarted = false
+    algoWorker.isStarted = false
     stubStartConnections.resolves()
 
     await Handler(server, ws, msg)
 
-    const { d, db, wsURL, restURL } = server
-    assert.calledWithExactly(stubStartConnections, {
-      db,
-      ws,
-      apiKey,
-      apiSecret,
-      d,
-      wsURL,
-      restURL,
-      dmsScope,
-      hostedURL
-    })
-    assert.calledWithExactly(ws.algoWorker.updateAuthArgs, {
+    assert.calledWithExactly(stubStartConnections, server, ws)
+    assert.calledWithExactly(algoWorker.updateAuthArgs, {
       apiKey,
       apiSecret
     })

@@ -28,36 +28,45 @@ describe('ConnectionManager', () => {
     }
   }
 
-  const ws = {
-    clients: {},
-    algoWorker,
-    dmsControl
-  }
   const db = sandbox.stub()
   const d = sandbox.stub()
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const wsURL = 'ws url'
   const restURL = 'rest url'
-  const hostedURL = 'hosted url'
   const dmsScope = 'scope'
+  const mode = 'main'
   const isPaper = true
-
-  const args = {
-    ws,
+  const server = {
     db,
     d,
-    apiKey,
-    apiSecret,
     wsURL,
-    restURL,
-    hostedURL,
-    dmsScope,
-    isPaper
+    restURL
   }
+  const session = {
+    mode,
+    dmsScope,
+    isPaper,
+    getCredentials: sandbox.stub(),
+    getDmsControl: sandbox.stub(),
+    setDmsControl: sandbox.stub(),
+    getAlgoWorker: sandbox.stub(),
+    setAlgoWorker: sandbox.stub(),
+    getStrategyManager: sandbox.stub(),
+    setStrategyManager: sandbox.stub(),
+    getClient: sandbox.stub(),
+    setClient: sandbox.stub()
+  }
+  const filteredWs = sandbox.stub()
+  const strategyManager = sandbox.stub()
 
-  const openAuthBitfinexConnection = sandbox.stub()
+  const createClient = sandbox.stub()
   const getUserSettings = sandbox.stub()
+  const createAlgoWorker = sandbox.stub()
+  const createDmsControl = sandbox.stub()
+  const createFilteredWs = sandbox.stub()
+  const createStrategyManager = sandbox.stub()
+  const resendSnapshots = sandbox.stub()
   const bfxClient = { isOpen: true }
 
   afterEach(() => {
@@ -67,89 +76,168 @@ describe('ConnectionManager', () => {
   beforeEach(() => {
     getUserSettings.resolves({ dms: true })
     openDmsSub.resolves()
-    openAuthBitfinexConnection.returns(bfxClient)
+    createClient.returns(bfxClient)
+    createDmsControl.returns(dmsControl)
+    createAlgoWorker.resolves(algoWorker)
+    createFilteredWs.returns(filteredWs)
+    createStrategyManager.returns(strategyManager)
+    session.getCredentials.returns({ apiKey, apiSecret })
   })
 
   const manager = proxyquire('ws_servers/api/start_connections', {
-    './open_auth_bitfinex_connection': openAuthBitfinexConnection,
-    '../../util/user_settings': getUserSettings
+    './open_auth_bitfinex_connection': createClient,
+    '../../util/user_settings': getUserSettings,
+    './factories/create_algo_worker': createAlgoWorker,
+    './factories/create_dms_control': createDmsControl,
+    './factories/created_filtered_ws': createFilteredWs,
+    './factories/create_strategy_manager': createStrategyManager,
+    './snapshots/send_all': resendSnapshots
   })
 
   it('start', async () => {
-    await manager.start(args)
+    await manager.start(server, session)
+
+    assert.calledWithExactly(createFilteredWs, session)
 
     assert.calledWithExactly(getUserSettings, db)
     assert.notCalled(dmsControl.updateStatus)
-    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, scope: dmsScope })
+    assert.calledWithExactly(createDmsControl, server)
+    assert.calledWithExactly(session.setDmsControl, dmsControl)
+    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
+
+    assert.calledWithExactly(session.getAlgoWorker)
+    assert.calledWithExactly(createAlgoWorker, server, filteredWs)
+    assert.calledWithExactly(session.setAlgoWorker, algoWorker)
+    assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
+
+    assert.calledWithExactly(session.getStrategyManager)
+    assert.calledWithExactly(createStrategyManager, server, filteredWs)
+    assert.calledWithExactly(session.setStrategyManager, strategyManager)
+
+    assert.calledWithExactly(session.getClient)
+    assert.calledWithExactly(createClient, {
+      apiKey,
+      apiSecret,
+      d,
+      wsURL,
+      restURL,
+      isPaper,
+      dmsScope,
+      ws: filteredWs,
+      dms: false
+    })
+    assert.calledWithExactly(session.setClient, bfxClient)
+
+    expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
+    expect(manager.isStartingServices).to.be.false
+  })
+
+  it('toggle mode', async () => {
+    const mode = 'paper'
+    const apiKey = 'paper key'
+    const apiSecret = 'paper secret'
+    const isPaper = true
+
+    const paperSession = { ...session, mode, isPaper }
+    paperSession.getCredentials.returns({ apiKey, apiSecret })
+
+    await manager.start(server, paperSession)
+
+    assert.calledWithExactly(getUserSettings, db)
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
-    assert.calledWithExactly(openAuthBitfinexConnection, {
-      ws,
-      d,
-      dms: false,
+    assert.calledWithExactly(createClient, {
       apiKey,
       apiSecret,
+      d,
       wsURL,
       restURL,
-      isPaper
+      isPaper,
+      dmsScope,
+      ws: filteredWs,
+      dms: false
     })
-    expect(ws.clients).to.haveOwnProperty('bitfinex')
 
-    expect(manager.apiKey).to.be.eq(apiKey)
-    expect(manager.apiSecret).to.be.eq(apiSecret)
-    expect(manager.starting).to.be.false
+    expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.paper.apiSecret).to.be.eq(apiSecret)
+    expect(manager.isStartingServices).to.be.false
   })
 
-  it('duplicated start', async () => {
-    await manager.start(args)
+  it('returns to previous mode', async () => {
+    session.getDmsControl.returns(dmsControl)
+    session.getAlgoWorker.returns(algoWorker)
+    session.getClient.returns(bfxClient)
+    session.getStrategyManager.returns(strategyManager)
+    resendSnapshots.resolves()
+
+    await manager.start(server, session)
 
     assert.calledWithExactly(dmsControl.updateStatus, true)
+    assert.notCalled(createAlgoWorker)
     assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
-    assert.notCalled(openAuthBitfinexConnection)
-    expect(manager.starting).to.be.false
+    assert.notCalled(createClient)
+    assert.notCalled(createStrategyManager)
+
+    assert.calledWithExactly(resendSnapshots, session, filteredWs)
+
+    expect(manager.isStartingServices).to.be.false
   })
 
   it('disable dms', async () => {
     getUserSettings.resolves({ dms: false })
+    session.getDmsControl.returns(dmsControl)
+    session.getAlgoWorker.returns(algoWorker)
+    session.getClient.returns(bfxClient)
+    session.getStrategyManager.returns(strategyManager)
+    resendSnapshots.resolves()
 
-    await manager.start(args)
+    await manager.start(server, session)
 
     assert.calledWithExactly(dmsControl.updateStatus, false)
+    assert.notCalled(createAlgoWorker)
     assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
-    assert.notCalled(openAuthBitfinexConnection)
-    expect(manager.starting).to.be.false
+    assert.notCalled(createClient)
+    assert.notCalled(createStrategyManager)
+    expect(manager.isStartingServices).to.be.false
   })
 
   it('update credentials', async () => {
     const apiSecret = 'new secret'
-    await manager.start({
-      ...args,
-      apiSecret
-    })
+
+    session.getDmsControl.returns(dmsControl)
+    session.getAlgoWorker.returns(algoWorker)
+    session.getClient.returns(bfxClient)
+    session.getStrategyManager.returns(strategyManager)
+    resendSnapshots.resolves()
+    session.getCredentials.returns({ apiKey, apiSecret })
+
+    await manager.start(server, session)
 
     assert.calledWithExactly(getUserSettings, db)
     assert.calledWithExactly(dmsControl.updateStatus, true)
     assert.notCalled(openDmsSub)
+    assert.notCalled(createStrategyManager)
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
-    assert.calledWithExactly(openAuthBitfinexConnection, {
-      ws,
-      d,
-      dms: false,
+    assert.calledWithExactly(createClient, {
       apiKey,
       apiSecret,
+      d,
       wsURL,
       restURL,
-      isPaper
+      isPaper,
+      dmsScope,
+      ws: filteredWs,
+      dms: false
     })
-    expect(ws.clients).to.haveOwnProperty('bitfinex')
 
-    expect(manager.apiKey).to.be.eq(apiKey)
-    expect(manager.apiSecret).to.be.eq(apiSecret)
-    expect(manager.starting).to.be.false
+    expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
+    expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
+    expect(manager.isStartingServices).to.be.false
   })
 })

@@ -29,7 +29,7 @@ describe('DmsRemoteControl', () => {
   const restURL = 'rest url'
   const apiKey = 'api key'
   const apiSecret = 'api secret'
-  const scope = 'app'
+  const dmsScope = 'app'
   const token = 'auth token'
 
   const DmsRemoteControl = proxyquire('ws_servers/api/dms_remote_control', {
@@ -66,7 +66,7 @@ describe('DmsRemoteControl', () => {
     const openPromise = dms.open({
       apiKey,
       apiSecret,
-      scope
+      dmsScope
     })
 
     setImmediate(() => {
@@ -78,7 +78,7 @@ describe('DmsRemoteControl', () => {
         event: 'auth',
         token,
         dms: true,
-        dmsScope: scope,
+        dmsScope,
         noInteraction: true
       }))
 
@@ -115,7 +115,7 @@ describe('DmsRemoteControl', () => {
       restURL
     })
     dms.ws = wsConn
-    dms.scope = scope
+    dms.scope = dmsScope
 
     it('ignore if dms should remain active', () => {
       const active = true
@@ -130,7 +130,7 @@ describe('DmsRemoteControl', () => {
 
       assert.calledWithExactly(stubWsSend, JSON.stringify({
         event: 'disable_dms',
-        scope
+        scope: dmsScope
       }))
       expect(dms.isOpen).to.be.false
       expect(dms.pingInterval).to.be.undefined
