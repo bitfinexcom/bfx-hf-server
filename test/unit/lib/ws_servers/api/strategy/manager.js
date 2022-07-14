@@ -36,7 +36,8 @@ const StrategyExecutionStub = {
   on: sandbox.stub(),
   execute: sandbox.stub(),
   stopExecution: sandbox.stub(),
-  generateResults: sandbox.stub()
+  generateResults: sandbox.stub(),
+  removeAllListeners: sandbox.stub()
 }
 
 const PriceFeedStub = {
@@ -209,6 +210,7 @@ describe('Strategy Manager', () => {
 
       expect(StrategyExecutionStub.stopExecution.calledOnce).to.be.true
       expect(StrategyExecutionStub.generateResults.calledThrice).to.be.true
+      expect(StrategyExecutionStub.removeAllListeners.calledOnce).to.be.true
       expect(manager.strategy.size).to.eq(0)
       expect(StrategyExecutionDBStub.StrategyExecution.set.calledOnce).to.be.true
 
