@@ -130,7 +130,6 @@ describe('ConnectionManager', () => {
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
     expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
-    expect(manager.isStartingServices).to.be.false
   })
 
   it('toggle mode', async () => {
@@ -162,7 +161,6 @@ describe('ConnectionManager', () => {
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
     expect(manager.credentials.paper.apiSecret).to.be.eq(apiSecret)
-    expect(manager.isStartingServices).to.be.false
   })
 
   it('returns to previous mode', async () => {
@@ -182,8 +180,6 @@ describe('ConnectionManager', () => {
     assert.notCalled(createStrategyManager)
 
     assert.calledWithExactly(resendSnapshots, session, filteredWs)
-
-    expect(manager.isStartingServices).to.be.false
   })
 
   it('disable dms', async () => {
@@ -202,7 +198,6 @@ describe('ConnectionManager', () => {
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
-    expect(manager.isStartingServices).to.be.false
   })
 
   it('update credentials', async () => {
@@ -238,6 +233,5 @@ describe('ConnectionManager', () => {
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
     expect(manager.credentials.main.apiSecret).to.be.eq(apiSecret)
-    expect(manager.isStartingServices).to.be.false
   })
 })
