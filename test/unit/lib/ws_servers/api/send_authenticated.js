@@ -117,7 +117,7 @@ describe('send authenticated', () => {
     db.Credential.find.resolves([credentials])
     db.UserSettings.getAll.resolves({ userSettings: null })
     stubDecryptApiCreds.resolves({ key: apiKey, secret: apiSecret })
-    stubStartConnections.resolves()
+    stubStartConnections.resolves([])
 
     await SendAuthenticated(server, ws, opts)
 
