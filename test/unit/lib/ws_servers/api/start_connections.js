@@ -63,7 +63,8 @@ describe('ConnectionManager', () => {
     getMetricsClient: sandbox.stub(),
     setMetricsClient: sandbox.stub(),
     getClient: sandbox.stub(),
-    setClient: sandbox.stub()
+    setClient: sandbox.stub(),
+    sendDataToMetricsServer: sandbox.stub()
   }
   const filteredWs = sandbox.stub()
   const strategyManager = sandbox.stub()
@@ -75,7 +76,11 @@ describe('ConnectionManager', () => {
   const createFilteredWs = sandbox.stub()
   const createStrategyManager = sandbox.stub()
   const createMetricsClient = sandbox.stub()
+  const sendMetricsDataFunc = sandbox.stub()
   const resendSnapshots = sandbox.stub()
+  const sendError = sandbox.stub()
+  const send = sandbox.stub()
+
   const bfxClient = { isOpen: true }
 
   afterEach(() => {
@@ -92,6 +97,7 @@ describe('ConnectionManager', () => {
     createStrategyManager.returns(strategyManager)
     createMetricsClient.returns(metricsClient)
     session.getCredentials.returns({ apiKey, apiSecret })
+    session.sendDataToMetricsServer.returns(sendMetricsDataFunc)
   })
 
   const manager = proxyquire('ws_servers/api/start_connections', {
@@ -102,7 +108,9 @@ describe('ConnectionManager', () => {
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
     './factories/create_metrics_client': createMetricsClient,
-    './snapshots/send_all': resendSnapshots
+    './snapshots/send_all': resendSnapshots,
+    '../../util/ws/send_error': sendError,
+    '../../util/ws/send': send
   })
 
   it('start', async () => {
@@ -122,7 +130,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, filteredWs)
+    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
@@ -140,7 +148,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServerFunc: sendMetricsDataFunc
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -174,7 +183,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServerFunc: sendMetricsDataFunc
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -251,7 +261,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServerFunc: sendMetricsDataFunc
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)

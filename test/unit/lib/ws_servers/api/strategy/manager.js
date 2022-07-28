@@ -86,7 +86,7 @@ describe('Strategy Manager', () => {
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const authToken = 'auth token'
-  const settings = { wsURL, restURL, dms, closeConnectionsDelay: 500 }
+  const settings = { wsURL, scope: 'app', restURL, dms, closeConnectionsDelay: 500 }
   const bcast = WsStub
 
   const ws = { conn: 'connection details' }
@@ -184,7 +184,7 @@ describe('Strategy Manager', () => {
       await manager.execute(parsedStrategy, strategyOptions)
 
       assert.calledWithExactly(StrategyExecutionConstructor, {
-        strategy: { ws, ...parsedStrategy },
+        strategy: { ws, scope: 'app', ...parsedStrategy },
         ws2Manager: manager.ws2Manager,
         rest: manager.rest,
         strategyOptions,
