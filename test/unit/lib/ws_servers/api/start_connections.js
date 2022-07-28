@@ -130,7 +130,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope)
+    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope, sendMetricsDataFunc)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)

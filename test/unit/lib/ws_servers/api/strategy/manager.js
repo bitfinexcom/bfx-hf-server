@@ -101,6 +101,10 @@ describe('Strategy Manager', () => {
     trades: false
   }
 
+  beforeEach(() => {
+    StrategyExecutionStub.generateResults.returns({ pl: 123 })
+  })
+
   after(() => {
     sandbox.restore()
   })
@@ -229,6 +233,7 @@ describe('Strategy Manager', () => {
           1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
         }
       })
+
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
@@ -249,6 +254,7 @@ describe('Strategy Manager', () => {
           1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
         }
       })
+
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
