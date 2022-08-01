@@ -76,7 +76,6 @@ describe('ConnectionManager', () => {
   const createFilteredWs = sandbox.stub()
   const createStrategyManager = sandbox.stub()
   const createMetricsClient = sandbox.stub()
-  const sendMetricsDataFunc = sandbox.stub()
   const resendSnapshots = sandbox.stub()
   const sendError = sandbox.stub()
   const send = sandbox.stub()
@@ -97,7 +96,6 @@ describe('ConnectionManager', () => {
     createStrategyManager.returns(strategyManager)
     createMetricsClient.returns(metricsClient)
     session.getCredentials.returns({ apiKey, apiSecret })
-    session.sendDataToMetricsServer.returns(sendMetricsDataFunc)
   })
 
   const manager = proxyquire('ws_servers/api/start_connections', {
@@ -130,7 +128,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope, sendMetricsDataFunc)
+    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope, session.sendDataToMetricsServer)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
@@ -149,7 +147,7 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServerFunc: sendMetricsDataFunc
+      sendDataToMetricsServer: session.sendDataToMetricsServer
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -184,7 +182,7 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServerFunc: sendMetricsDataFunc
+      sendDataToMetricsServer: paperSession.sendDataToMetricsServer
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -262,7 +260,7 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServerFunc: sendMetricsDataFunc
+      sendDataToMetricsServer: session.sendDataToMetricsServer
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
