@@ -34,6 +34,7 @@ describe('ConnectionManager', () => {
     }
   }
 
+  const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
   const apiKey = 'api key'
@@ -50,6 +51,7 @@ describe('ConnectionManager', () => {
     restURL
   }
   const session = {
+    id: sessionId,
     mode,
     dmsScope,
     isPaper,
@@ -132,7 +134,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
-    assert.calledWithExactly(createMetricsClient, server, filteredWs)
+    assert.calledWithExactly(createMetricsClient, server, filteredWs, sessionId)
     assert.calledWithExactly(session.setMetricsClient, metricsClient)
     assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
 
