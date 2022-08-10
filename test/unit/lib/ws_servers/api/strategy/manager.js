@@ -6,6 +6,8 @@ const { expect } = require('chai')
 const { assert, createSandbox } = require('sinon')
 const proxyquire = require('proxyquire').noCallThru()
 
+const { WD_PACKET_DELAY, WD_RECONNECT_DELAY } = require('../../../../../../lib/constants')
+
 const sandbox = createSandbox()
 const WsStub = sandbox.stub()
 const restV2Stub = sandbox.stub()
@@ -149,9 +151,8 @@ describe('Strategy Manager', () => {
       })
 
       assert.calledWithExactly(WatchdogConstructor, {
-        autoReconnect: true,
-        reconnectDelay: 5000,
-        packetWDDelay: 10000
+        reconnectDelay: WD_RECONNECT_DELAY,
+        packetWDDelay: WD_PACKET_DELAY
       })
     })
 

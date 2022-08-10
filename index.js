@@ -7,13 +7,13 @@ const HFDBLowDBAdapter = require('bfx-hf-models-adapter-lowdb')
 const { schema: HFDBDummySchema } = require('bfx-hf-ext-plugin-dummy')
 
 const { ALGO_LOG, ALGO_LOG_DIR } = process.env
-const BitfinexExchangeClient = require('./lib/exchange_clients')[0]
 const APIWSServer = require('./lib/ws_servers/api')
 const HttpProxy = require('./lib/bfx_api_proxy')
 const getMarketData = require('./lib/get_market_data')
 const capture = require('./lib/capture')
 
 const config = require('./config/algo_server.conf.json')
+const { RESTv2 } = require('bfx-api-node-rest')
 
 module.exports = async ({
   bfxRestURL,
@@ -73,10 +73,13 @@ module.exports = async ({
     port: httpProxyPort
   })
 
-  const opts = { wsURL: bfxWSURL, restURL: bfxRestURL }
+  const rest = new RESTv2({
+    url: bfxRestURL
+  })
+
   async function tryConnect () {
     try {
-      const marketData = await getMarketData(BitfinexExchangeClient, opts)
+      const marketData = await getMarketData(rest)
       api.setMarketData(marketData)
 
       proxy.open()
