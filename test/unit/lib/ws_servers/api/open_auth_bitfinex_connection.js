@@ -7,6 +7,7 @@ const { spy, assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
 const EventEmitter = require('events')
 const { WS_CONNECTION } = require('../../../../../lib/constants')
+const transformOrder = require('../../../../../lib/exchange_clients/bitfinex/transformers/order')
 
 describe('openAuthBitfinexConnection', () => {
   const sandbox = createSandbox()
@@ -141,27 +142,39 @@ describe('openAuthBitfinexConnection', () => {
     })
 
     it('on', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null, { scope: 'app' }]
+      const msgData = [
+        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        null, null, null, 0, 'ACTIVE', null, null, 25000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
+        'API>BFX', null, null, { scope: 'app' }
+      ]
 
       onData(['on', msgData])
 
-      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', msgData]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', transformOrder(msgData)]))
     })
 
     it('ou', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 60, 0, 0, 0, false, false, false, false, false, null, { scope: 'app' }]
+      const msgData = [
+        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        null, null, null, 0, 'ACTIVE', null, null, 26000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
+        'API>BFX', null, null, { scope: 'app' }
+      ]
 
       onData(['ou', msgData])
 
-      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', msgData]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', transformOrder(msgData)]))
     })
 
     it('oc', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'CANCELED', 60, 0, 0, 0, false, false, false, false, false, null, { scope: 'app' }]
+      const msgData = [
+        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        null, null, null, 0, 'CANCELED', null, null, 26000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
+        'API>BFX', null, null, { scope: 'app' }
+      ]
 
       onData(['oc', msgData])
 
-      assert.calledWithExactly(ws.send, JSON.stringify(['data.order.close', 'bitfinex', msgData]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.order.close', 'bitfinex', transformOrder(msgData)]))
     })
 
     it('n', () => {

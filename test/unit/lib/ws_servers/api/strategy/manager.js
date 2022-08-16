@@ -88,7 +88,7 @@ describe('Strategy Manager', () => {
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const authToken = 'auth token'
-  const settings = { wsURL, restURL, dms, closeConnectionsDelay: 500 }
+  const settings = { wsURL, scope: 'app', restURL, dms, closeConnectionsDelay: 500 }
   const bcast = WsStub
 
   const ws = { conn: 'connection details' }
@@ -102,6 +102,10 @@ describe('Strategy Manager', () => {
     timeframe: '1m',
     trades: false
   }
+
+  beforeEach(() => {
+    StrategyExecutionStub.generateResults.returns({ pl: 123 })
+  })
 
   after(() => {
     sandbox.restore()
@@ -185,7 +189,7 @@ describe('Strategy Manager', () => {
       await manager.execute(parsedStrategy, strategyOptions)
 
       assert.calledWithExactly(StrategyExecutionConstructor, {
-        strategy: { ws, ...parsedStrategy },
+        strategy: { ws, scope: 'app', ...parsedStrategy },
         ws2Manager: manager.ws2Manager,
         rest: manager.rest,
         strategyOptions,
@@ -230,6 +234,7 @@ describe('Strategy Manager', () => {
           1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
         }
       })
+
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })
@@ -250,6 +255,7 @@ describe('Strategy Manager', () => {
           1: { channel: 'candles', chanId: 1, key: 'trade:1m:tETHUSD' }
         }
       })
+
       sandbox.stub(manager, '_unsubscribe')
 
       await manager.start({ apiKey, apiSecret, authToken })

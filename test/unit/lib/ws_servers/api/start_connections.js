@@ -1,5 +1,3 @@
-'use strict'
-
 /* eslint-disable no-unused-expressions */
 /* eslint-env mocha */
 'use strict'
@@ -28,6 +26,15 @@ describe('ConnectionManager', () => {
     }
   }
 
+  const openMetricsClientStub = sandbox.stub()
+  const metricsClient = {
+    open: (args) => {
+      metricsClient.isOpen = true
+      return openMetricsClientStub(args)
+    }
+  }
+
+  const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
   const apiKey = 'api key'
@@ -44,6 +51,7 @@ describe('ConnectionManager', () => {
     restURL
   }
   const session = {
+    id: sessionId,
     mode,
     dmsScope,
     isPaper,
@@ -54,8 +62,11 @@ describe('ConnectionManager', () => {
     setAlgoWorker: sandbox.stub(),
     getStrategyManager: sandbox.stub(),
     setStrategyManager: sandbox.stub(),
+    getMetricsClient: sandbox.stub(),
+    setMetricsClient: sandbox.stub(),
     getClient: sandbox.stub(),
-    setClient: sandbox.stub()
+    setClient: sandbox.stub(),
+    sendDataToMetricsServer: sandbox.stub()
   }
   const filteredWs = sandbox.stub()
   const strategyManager = sandbox.stub()
@@ -66,7 +77,11 @@ describe('ConnectionManager', () => {
   const createDmsControl = sandbox.stub()
   const createFilteredWs = sandbox.stub()
   const createStrategyManager = sandbox.stub()
+  const createMetricsClient = sandbox.stub()
   const resendSnapshots = sandbox.stub()
+  const sendError = sandbox.stub()
+  const send = sandbox.stub()
+
   const bfxClient = { isOpen: true }
 
   afterEach(() => {
@@ -81,6 +96,7 @@ describe('ConnectionManager', () => {
     createAlgoWorker.resolves(algoWorker)
     createFilteredWs.returns(filteredWs)
     createStrategyManager.returns(strategyManager)
+    createMetricsClient.returns(metricsClient)
     session.getCredentials.returns({ apiKey, apiSecret })
   })
 
@@ -91,7 +107,10 @@ describe('ConnectionManager', () => {
     './factories/create_dms_control': createDmsControl,
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
-    './snapshots/send_all': resendSnapshots
+    './factories/create_metrics_client': createMetricsClient,
+    './snapshots/send_all': resendSnapshots,
+    '../../util/ws/send_error': sendError,
+    '../../util/ws/send': send
   })
 
   it('start', async () => {
@@ -111,8 +130,13 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, filteredWs)
+    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope, session.sendDataToMetricsServer)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
+
+    assert.calledWithExactly(session.getMetricsClient)
+    assert.calledWithExactly(createMetricsClient, server, filteredWs, sessionId)
+    assert.calledWithExactly(session.setMetricsClient, metricsClient)
+    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
 
     assert.calledWithExactly(session.getClient)
     assert.calledWithExactly(createClient, {
@@ -124,7 +148,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServer: session.sendDataToMetricsServer
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -147,6 +172,8 @@ describe('ConnectionManager', () => {
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
+    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
+
     assert.calledWithExactly(createClient, {
       apiKey,
       apiSecret,
@@ -156,7 +183,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServer: paperSession.sendDataToMetricsServer
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -168,6 +196,7 @@ describe('ConnectionManager', () => {
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
+    session.getMetricsClient.returns(metricsClient)
     resendSnapshots.resolves()
 
     await manager.start(server, session)
@@ -178,6 +207,7 @@ describe('ConnectionManager', () => {
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
+    assert.notCalled(createMetricsClient)
 
     assert.calledWithExactly(resendSnapshots, session, filteredWs)
   })
@@ -188,6 +218,7 @@ describe('ConnectionManager', () => {
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
+    session.getMetricsClient.returns(metricsClient)
     resendSnapshots.resolves()
 
     await manager.start(server, session)
@@ -198,6 +229,7 @@ describe('ConnectionManager', () => {
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
+    assert.notCalled(createMetricsClient)
   })
 
   it('update credentials', async () => {
@@ -207,6 +239,7 @@ describe('ConnectionManager', () => {
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
+    session.getMetricsClient.returns(metricsClient)
     resendSnapshots.resolves()
     session.getCredentials.returns({ apiKey, apiSecret })
 
@@ -218,7 +251,7 @@ describe('ConnectionManager', () => {
     assert.notCalled(createStrategyManager)
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
-
+    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
     assert.calledWithExactly(createClient, {
       apiKey,
       apiSecret,
@@ -228,7 +261,8 @@ describe('ConnectionManager', () => {
       isPaper,
       dmsScope,
       ws: filteredWs,
-      dms: false
+      dms: false,
+      sendDataToMetricsServer: session.sendDataToMetricsServer
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
