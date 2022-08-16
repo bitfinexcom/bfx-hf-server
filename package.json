@@ -48,7 +48,7 @@
   },
   "scripts": {
     "start": "NODE_PATH=lib node examples/server.js",
-    "lint": "standard",
+    "lint": "standard --fix",
     "coverage": "nyc --all --reporter lcov npm run unit",
     "test": "npm run lint && npm run unit",
     "unit": "NODE_PATH=lib NODE_ENV=test mocha --recursive test/unit"
