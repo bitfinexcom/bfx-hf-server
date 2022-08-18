@@ -48,6 +48,7 @@ describe('openAuthBitfinexConnection', () => {
   bfxClient.setAuthArgs = sandbox.stub()
   bfxClient.openWS = sandbox.stub()
   bfxClient.openSocket = sandbox.stub()
+  bfxClient.getUserInfo = sandbox.stub()
   bfxClient.onData = (fn) => {
     onData = fn
   }
@@ -62,10 +63,10 @@ describe('openAuthBitfinexConnection', () => {
 
   it('creates a client', (done) => {
     const client = openAuthBitfinexConnection(args)
+    client.getUserInfo.resolves({ username: 'user1' })
 
     client.emit('ws2:event:auth:success')
     client.emit('ws2:close')
-
     assert.calledWithExactly(bfxClient.setAuthArgs, {
       dms: 0, apiKey, apiSecret, authToken
     })
@@ -76,11 +77,13 @@ describe('openAuthBitfinexConnection', () => {
       channelFilters: ['trading', 'wallet', 'notify']
     })
     assert.calledWithExactly(bfxClient.openSocket)
+    assert.calledWithExactly(bfxClient.getUserInfo)
 
     expect(client).to.eq(bfxClient)
 
     setImmediate(() => {
       assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', WS_CONNECTION.OPENED]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['info.username', 'main', 'user1']))
       assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', WS_CONNECTION.CLOSED]))
       done()
     })
