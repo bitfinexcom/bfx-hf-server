@@ -27,10 +27,15 @@ describe('ConnectionManager', () => {
   }
 
   const openMetricsClientStub = sandbox.stub()
+  const authMetricsClientStub = sandbox.stub()
   const metricsClient = {
-    open: (args) => {
+    open: () => {
       metricsClient.isOpen = true
-      return openMetricsClientStub(args)
+      return openMetricsClientStub()
+    },
+    auth: (args) => {
+      metricsClient.isAuthenticated = true
+      return authMetricsClientStub(args)
     }
   }
 
@@ -55,6 +60,7 @@ describe('ConnectionManager', () => {
     mode,
     dmsScope,
     isPaper,
+    metricsClient,
     getCredentials: sandbox.stub(),
     getDmsControl: sandbox.stub(),
     setDmsControl: sandbox.stub(),
@@ -77,7 +83,6 @@ describe('ConnectionManager', () => {
   const createDmsControl = sandbox.stub()
   const createFilteredWs = sandbox.stub()
   const createStrategyManager = sandbox.stub()
-  const createMetricsClient = sandbox.stub()
   const resendSnapshots = sandbox.stub()
   const sendError = sandbox.stub()
   const send = sandbox.stub()
@@ -96,7 +101,7 @@ describe('ConnectionManager', () => {
     createAlgoWorker.resolves(algoWorker)
     createFilteredWs.returns(filteredWs)
     createStrategyManager.returns(strategyManager)
-    createMetricsClient.returns(metricsClient)
+    session.getMetricsClient.returns(metricsClient)
     session.getCredentials.returns({ apiKey, apiSecret })
   })
 
@@ -107,7 +112,7 @@ describe('ConnectionManager', () => {
     './factories/create_dms_control': createDmsControl,
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
-    './factories/create_metrics_client': createMetricsClient,
+    // './factories/create_metrics_client': createMetricsClient,
     './snapshots/send_all': resendSnapshots,
     '../../util/ws/send_error': sendError,
     '../../util/ws/send': send
@@ -134,9 +139,9 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
-    assert.calledWithExactly(createMetricsClient, server, filteredWs, sessionId)
     assert.calledWithExactly(session.setMetricsClient, metricsClient)
-    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
+    assert.calledWithExactly(openMetricsClientStub)
+    assert.calledWithExactly(authMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
 
     assert.calledWithExactly(session.getClient)
     assert.calledWithExactly(createClient, {
@@ -172,7 +177,7 @@ describe('ConnectionManager', () => {
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
-    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
+    assert.calledWithExactly(authMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
 
     assert.calledWithExactly(createClient, {
       apiKey,
@@ -207,7 +212,6 @@ describe('ConnectionManager', () => {
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
-    assert.notCalled(createMetricsClient)
 
     assert.calledWithExactly(resendSnapshots, session, filteredWs)
   })
@@ -229,7 +233,6 @@ describe('ConnectionManager', () => {
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
-    assert.notCalled(createMetricsClient)
   })
 
   it('update credentials', async () => {
@@ -251,7 +254,7 @@ describe('ConnectionManager', () => {
     assert.notCalled(createStrategyManager)
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
-    assert.calledWithExactly(openMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
+    assert.calledWithExactly(authMetricsClientStub, { apiKey, apiSecret, scope: dmsScope })
     assert.calledWithExactly(createClient, {
       apiKey,
       apiSecret,
