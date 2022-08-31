@@ -42,12 +42,14 @@ describe('AlgoWorker', () => {
     dir: '/trace-dir'
   }
 
+  const mode = 'main'
   const settings = {
     dms: 'dms',
     affiliateCode: 'affiliate code',
     wsURL: 'ws url',
     restURL: 'rest url',
-    signalTracerOpts
+    signalTracerOpts,
+    mode
   }
   const algoOrders = []
   const bcast = WsStub
@@ -126,15 +128,6 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(AOHostStub.connect)
       // publish opened event
       assert.calledWithExactly(WsStub.firstCall, ['opened', userId, 'bitfinex'])
-      // send active instances
-      assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', [[
-        aoInstance.state.id,
-        aoInstance.state.gid,
-        aoInstance.state.name,
-        aoInstance.state.label,
-        aoInstance.state.args,
-        aoInstance.state.createdAt
-      ]]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
       expect(algoWorker.isStarted).to.be.true
@@ -254,7 +247,7 @@ describe('AlgoWorker', () => {
           'Started AO name on Bitfinex',
           { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
         ])
-        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
     })
@@ -282,7 +275,7 @@ describe('AlgoWorker', () => {
           'Started AO name on Bitfinex',
           { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
         ])
-        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', { ...uiData }])
+        assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
       })
     })
