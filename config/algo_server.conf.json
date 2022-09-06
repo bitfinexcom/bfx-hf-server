@@ -1,8 +1,11 @@
 {
   "algos": [
-    "PingPong", "Iceberg",
-    "TWAP", "AccumulateDistribute",
-    "MACrossover", "OCOCO"
+    "PingPong",
+    "Iceberg",
+    "TWAP",
+    "AccumulateDistribute",
+    "MACrossover",
+    "Bracket"
   ],
   "auth": {
     "tokenTtlInSeconds": 18000

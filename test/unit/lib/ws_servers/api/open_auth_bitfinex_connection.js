@@ -31,6 +31,7 @@ describe('openAuthBitfinexConnection', () => {
   const wsURL = 'ws url'
   const restURL = 'rest url'
   const isPaper = false
+  const mode = 'main'
   const args = {
     ws,
     apiKey,
@@ -40,7 +41,8 @@ describe('openAuthBitfinexConnection', () => {
     d,
     wsURL,
     restURL,
-    isPaper
+    isPaper,
+    mode
   }
 
   let onData
@@ -82,9 +84,9 @@ describe('openAuthBitfinexConnection', () => {
     expect(client).to.eq(bfxClient)
 
     setImmediate(() => {
-      assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', WS_CONNECTION.OPENED]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', mode, WS_CONNECTION.OPENED]))
       assert.calledWithExactly(ws.send, JSON.stringify(['info.username', 'main', 'user1']))
-      assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', WS_CONNECTION.CLOSED]))
+      assert.calledWithExactly(ws.send, JSON.stringify(['data.client', 'bitfinex', mode, WS_CONNECTION.CLOSED]))
       done()
     })
   })

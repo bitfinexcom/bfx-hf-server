@@ -154,7 +154,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: session.sendDataToMetricsServer
+      sendDataToMetricsServer: session.sendDataToMetricsServer,
+      mode
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -189,7 +190,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: paperSession.sendDataToMetricsServer
+      sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
+      mode
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -265,7 +267,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: session.sendDataToMetricsServer
+      sendDataToMetricsServer: session.sendDataToMetricsServer,
+      mode
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
