@@ -3,7 +3,6 @@
 'use strict'
 
 const { assert, createSandbox } = require('sinon')
-const { expect } = require('chai')
 const proxyquire = require('proxyquire')
 
 const sandbox = createSandbox()
@@ -62,10 +61,6 @@ describe('on save api credentials', () => {
     restURL: 'rest url',
     reconnectAlgoHost: sandbox.stub(),
     hostedURL
-  }
-  const bfxClient = {
-    setAuthArgs: sandbox.stub(),
-    reconnect: sandbox.stub()
   }
   const algoWorker = {
     updateAuthArgs: sandbox.stub()
