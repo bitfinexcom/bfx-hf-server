@@ -3,7 +3,6 @@
 'use strict'
 
 const { assert, createSandbox } = require('sinon')
-const { expect } = require('chai')
 const proxyquire = require('proxyquire')
 
 const sandbox = createSandbox()
@@ -63,26 +62,14 @@ describe('on save api credentials', () => {
     reconnectAlgoHost: sandbox.stub(),
     hostedURL
   }
-  const bfxClient = {
-    setAuthArgs: sandbox.stub(),
-    reconnect: sandbox.stub()
-  }
   const algoWorker = {
     updateAuthArgs: sandbox.stub()
   }
   const ws = {
     authPassword: 'secret',
     authControl: 'auth control',
-    getClient: () => bfxClient,
-    getAlgoWorker: () => algoWorker,
-    authenticateSession: (args) => {
-      expect(args).to.be.eql({
-        apiKey,
-        apiSecret,
-        dmsScope,
-        mode
-      })
-    }
+    closeMode: sandbox.stub(),
+    authenticateSession: sandbox.stub()
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -166,31 +153,19 @@ describe('on save api credentials', () => {
     assert.notCalled(server.reconnectAlgoHost)
   })
 
-  it('should ignore if algo worker already started', async () => {
-    await Handler(server, ws, msg)
-
-    expect(ws.bitfinexCredentials).to.eql({ key: apiKey, secret: apiSecret })
-    assert.calledWithExactly(bfxClient.setAuthArgs, { apiKey, apiSecret })
-    assert.calledWithExactly(bfxClient.reconnect)
-    assert.calledWithExactly(server.reconnectAlgoHost, ws)
-    assert.calledWithExactly(
-      stubNotifySuccess,
-      ws,
-      'Reconnecting with new credentials...',
-      ['reconnectingWithNewCredentials']
-    )
-  })
-
   it('should start algo worker', async () => {
     algoWorker.isStarted = false
     stubStartConnections.resolves()
 
     await Handler(server, ws, msg)
 
-    assert.calledWithExactly(stubStartConnections, server, ws)
-    assert.calledWithExactly(algoWorker.updateAuthArgs, {
+    assert.calledWithExactly(ws.closeMode, mode)
+    assert.calledWithExactly(ws.authenticateSession, {
       apiKey,
-      apiSecret
+      apiSecret,
+      mode,
+      dmsScope
     })
+    assert.calledWithExactly(stubStartConnections, server, ws)
   })
 })
