@@ -69,7 +69,8 @@ describe('on save api credentials', () => {
     authPassword: 'secret',
     authControl: 'auth control',
     closeMode: sandbox.stub(),
-    authenticateSession: sandbox.stub()
+    authenticateSession: sandbox.stub(),
+    setCredentialsForMode: sandbox.stub()
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -150,7 +151,9 @@ describe('on save api credentials', () => {
       ['encryptedApiCredentialsSavedFor', { target: 'Bitfinex' }]
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
-    assert.notCalled(server.reconnectAlgoHost)
+    assert.calledWithExactly(ws.setCredentialsForMode, formSent, apiKey, apiSecret)
+    assert.notCalled(ws.authenticateSession)
+    assert.notCalled(stubStartConnections)
   })
 
   it('should start algo worker', async () => {
