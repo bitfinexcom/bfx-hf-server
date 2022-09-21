@@ -69,7 +69,8 @@ describe('on save api credentials', () => {
     authPassword: 'secret',
     authControl: 'auth control',
     closeMode: sandbox.stub(),
-    authenticateSession: sandbox.stub()
+    authenticateSession: sandbox.stub(),
+    setCredentialsForMode: sandbox.stub()
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
