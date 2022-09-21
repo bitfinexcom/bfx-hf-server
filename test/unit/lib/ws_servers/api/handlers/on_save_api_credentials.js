@@ -151,7 +151,9 @@ describe('on save api credentials', () => {
       ['encryptedApiCredentialsSavedFor', { target: 'Bitfinex' }]
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
-    assert.notCalled(server.reconnectAlgoHost)
+    assert.calledWithExactly(ws.setCredentialsForMode, formSent, apiKey, apiSecret)
+    assert.notCalled(ws.authenticateSession)
+    assert.notCalled(stubStartConnections)
   })
 
   it('should start algo worker', async () => {
