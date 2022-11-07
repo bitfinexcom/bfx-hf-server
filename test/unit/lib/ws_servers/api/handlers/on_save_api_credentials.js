@@ -12,6 +12,7 @@ const stubWsValidateParams = sandbox.stub()
 const stubNotifyInternalError = sandbox.stub()
 const stubNotifySuccess = sandbox.stub()
 const stubNotifyError = sandbox.stub()
+const stubVerifyCredentialAccount = sandbox.stub()
 const stubVerifyPassword = sandbox.stub()
 const stubEncryptApiCred = sandbox.stub()
 const stubWsIsAuthorized = sandbox.stub()
@@ -26,6 +27,9 @@ const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
     notifyInternalError: stubNotifyInternalError,
     notifySuccess: stubNotifySuccess,
     notifyError: stubNotifyError
+  },
+  '../../../util/validate_credentials': {
+    verifyCredentialAccount: stubVerifyCredentialAccount
   },
   '../../../util/verify_password': stubVerifyPassword,
   '../../../util/encrypt_api_credentials': stubEncryptApiCred,
@@ -44,6 +48,7 @@ describe('on save api credentials', () => {
     stubWsValidateParams.returns(true)
     stubWsIsAuthorized.returns(true)
     stubVerifyPassword.resolves(ws.authControl)
+    stubVerifyCredentialAccount.resolves(true)
   })
 
   afterEach(() => {
