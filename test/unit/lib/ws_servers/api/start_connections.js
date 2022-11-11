@@ -131,7 +131,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
 
     assert.calledWithExactly(session.getAlgoWorker)
-    assert.calledWithExactly(createAlgoWorker, server, filteredWs)
+    assert.calledWithExactly(createAlgoWorker, server, filteredWs, mode)
     assert.calledWithExactly(session.setAlgoWorker, algoWorker)
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
