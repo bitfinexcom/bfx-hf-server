@@ -3,7 +3,6 @@
 'use strict'
 
 const { assert, createSandbox } = require('sinon')
-const { expect } = require('chai')
 const proxyquire = require('proxyquire')
 
 const sandbox = createSandbox()
@@ -13,6 +12,7 @@ const stubWsValidateParams = sandbox.stub()
 const stubNotifyInternalError = sandbox.stub()
 const stubNotifySuccess = sandbox.stub()
 const stubNotifyError = sandbox.stub()
+const stubVerifyCredentialAccount = sandbox.stub()
 const stubVerifyPassword = sandbox.stub()
 const stubEncryptApiCred = sandbox.stub()
 const stubWsIsAuthorized = sandbox.stub()
@@ -27,6 +27,9 @@ const Handler = proxyquire('ws_servers/api/handlers/on_save_api_credentials', {
     notifyInternalError: stubNotifyInternalError,
     notifySuccess: stubNotifySuccess,
     notifyError: stubNotifyError
+  },
+  '../../../util/validate_credentials': {
+    verifyCredentialAccount: stubVerifyCredentialAccount
   },
   '../../../util/verify_password': stubVerifyPassword,
   '../../../util/encrypt_api_credentials': stubEncryptApiCred,
@@ -45,6 +48,7 @@ describe('on save api credentials', () => {
     stubWsValidateParams.returns(true)
     stubWsIsAuthorized.returns(true)
     stubVerifyPassword.resolves(ws.authControl)
+    stubVerifyCredentialAccount.resolves(true)
   })
 
   afterEach(() => {
@@ -63,26 +67,15 @@ describe('on save api credentials', () => {
     reconnectAlgoHost: sandbox.stub(),
     hostedURL
   }
-  const bfxClient = {
-    setAuthArgs: sandbox.stub(),
-    reconnect: sandbox.stub()
-  }
   const algoWorker = {
     updateAuthArgs: sandbox.stub()
   }
   const ws = {
     authPassword: 'secret',
     authControl: 'auth control',
-    getClient: () => bfxClient,
-    getAlgoWorker: () => algoWorker,
-    authenticateSession: (args) => {
-      expect(args).to.be.eql({
-        apiKey,
-        apiSecret,
-        dmsScope,
-        mode
-      })
-    }
+    closeMode: sandbox.stub(),
+    authenticateSession: sandbox.stub(),
+    setCredentialsForMode: sandbox.stub()
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -163,22 +156,9 @@ describe('on save api credentials', () => {
       ['encryptedApiCredentialsSavedFor', { target: 'Bitfinex' }]
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
-    assert.notCalled(server.reconnectAlgoHost)
-  })
-
-  it('should ignore if algo worker already started', async () => {
-    await Handler(server, ws, msg)
-
-    expect(ws.bitfinexCredentials).to.eql({ key: apiKey, secret: apiSecret })
-    assert.calledWithExactly(bfxClient.setAuthArgs, { apiKey, apiSecret })
-    assert.calledWithExactly(bfxClient.reconnect)
-    assert.calledWithExactly(server.reconnectAlgoHost, ws)
-    assert.calledWithExactly(
-      stubNotifySuccess,
-      ws,
-      'Reconnecting with new credentials...',
-      ['reconnectingWithNewCredentials']
-    )
+    assert.calledWithExactly(ws.setCredentialsForMode, formSent, apiKey, apiSecret)
+    assert.notCalled(ws.authenticateSession)
+    assert.notCalled(stubStartConnections)
   })
 
   it('should start algo worker', async () => {
@@ -187,10 +167,13 @@ describe('on save api credentials', () => {
 
     await Handler(server, ws, msg)
 
-    assert.calledWithExactly(stubStartConnections, server, ws)
-    assert.calledWithExactly(algoWorker.updateAuthArgs, {
+    assert.calledWithExactly(ws.closeMode, mode)
+    assert.calledWithExactly(ws.authenticateSession, {
       apiKey,
-      apiSecret
+      apiSecret,
+      mode,
+      dmsScope
     })
+    assert.calledWithExactly(stubStartConnections, server, ws)
   })
 })

@@ -36,7 +36,8 @@ describe('ConnectionManager', () => {
     auth: (args) => {
       metricsClient.isAuthenticated = true
       return authMetricsClientStub(args)
-    }
+    },
+    sendAuidInfo: sandbox.stub()
   }
 
   const sessionId = 'session_id'
@@ -135,7 +136,7 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, filteredWs, dmsScope, session.sendDataToMetricsServer)
+    assert.calledWithExactly(createStrategyManager, server, session, filteredWs, dmsScope, session.sendDataToMetricsServer)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
@@ -154,7 +155,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: session.sendDataToMetricsServer
+      sendDataToMetricsServer: session.sendDataToMetricsServer,
+      mode
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -189,7 +191,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: paperSession.sendDataToMetricsServer
+      sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
+      mode
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -207,6 +210,7 @@ describe('ConnectionManager', () => {
     await manager.start(server, session)
 
     assert.calledWithExactly(dmsControl.updateStatus, true)
+    assert.calledWithExactly(metricsClient.sendAuidInfo)
     assert.notCalled(createAlgoWorker)
     assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
@@ -265,7 +269,8 @@ describe('ConnectionManager', () => {
       dmsScope,
       ws: filteredWs,
       dms: false,
-      sendDataToMetricsServer: session.sendDataToMetricsServer
+      sendDataToMetricsServer: session.sendDataToMetricsServer,
+      mode
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
