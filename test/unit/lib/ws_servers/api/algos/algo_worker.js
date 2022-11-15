@@ -2,6 +2,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const _omit = require('lodash/omit')
 const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
 const proxyquire = require('proxyquire').noCallThru()
@@ -53,9 +54,9 @@ describe('AlgoWorker', () => {
   }
   const algoOrders = []
   const bcast = WsStub
-  const algoDB = { AlgoOrder: { set: sandbox.stub() } }
+  const algoDB = { AlgoOrder: { find: sandbox.stub(), set: sandbox.stub() } }
   const logAlgoOpts = null
-  const marketData = new Map()
+  const marketData = new Map([['tBTCUSD', { wsID: 'tBTCUSD', p: 0 }]])
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const authToken = 'auth token'
@@ -83,23 +84,21 @@ describe('AlgoWorker', () => {
     }
 
     it('should create the host and register the events', async () => {
-      const aoInstance = {
-        state: {
-          active: true,
-          createdAt: 1633936704466,
-          id: 'id',
-          gid: 'gid',
+      const aoDetails = {
+        gid: 'gid',
+        algoID: 'algo id',
+        createdAt: 1633936704466,
+        state: JSON.stringify({
           name: 'name',
-          args: 'args',
+          args: { symbol: 'tBTCUSD' },
           label: 'label'
-        }
+        })
       }
-      AOHostStub.getAOInstances.returns([aoInstance])
       AOHostStub.connect.resolves(authResponse)
+      algoDB.AlgoOrder.find.resolves([aoDetails])
 
-      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData)
+      const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, mode)
       expect(algoWorker.isStarted).to.be.false
-
       await algoWorker.start({ apiKey, apiSecret, authToken, userId })
 
       // generate auth token with api credentials
@@ -128,6 +127,11 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(AOHostStub.connect)
       // publish opened event
       assert.calledWithExactly(WsStub.firstCall, ['opened', userId, 'bitfinex'])
+      // send active aos
+      assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', mode, [{
+        ..._omit(aoDetails, 'state'),
+        ...JSON.parse(aoDetails.state)
+      }]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
       expect(algoWorker.isStarted).to.be.true
