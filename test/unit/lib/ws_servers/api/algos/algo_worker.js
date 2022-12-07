@@ -211,6 +211,7 @@ describe('AlgoWorker', () => {
     const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
+      alias: 'alias',
       name: 'name',
       label: 'label',
       args: {},
@@ -248,8 +249,8 @@ describe('AlgoWorker', () => {
         assert.calledWithExactly(WsStub.firstCall, [
           'notify',
           'success',
-          'Started AO name on Bitfinex',
-          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+          `Started AO ${uiData.alias} on Bitfinex`,
+          { key: 'startedAO', props: { alias: uiData.alias, name: 'name', target: 'Bitfinex' } }
         ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
@@ -276,8 +277,8 @@ describe('AlgoWorker', () => {
         assert.calledWithExactly(WsStub.firstCall, [
           'notify',
           'success',
-          'Started AO name on Bitfinex',
-          { key: 'startedAO', props: { name: 'name', target: 'Bitfinex' } }
+          `Started AO ${uiData.alias} on Bitfinex`,
+          { key: 'startedAO', props: { alias: uiData.alias, name: 'name', target: 'Bitfinex' } }
         ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
