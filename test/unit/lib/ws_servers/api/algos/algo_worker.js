@@ -10,7 +10,6 @@ const proxyquire = require('proxyquire').noCallThru()
 const sandbox = createSandbox()
 const WsStub = sandbox.stub()
 const AOHostConstructor = sandbox.stub()
-const orderHistoryStub = sandbox.stub()
 const AOHostStub = {
   on: sandbox.stub(),
   connect: sandbox.stub(),
@@ -26,24 +25,6 @@ const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
       AOHostConstructor(args)
       return AOHostStub
     })
-  },
-  'bfx-api-node-rest': {
-    RESTv2: sandbox.spy((args) => {
-      expect(args).to.eql({
-        transform: true,
-        url: 'rest url',
-        apiKey: 'api key',
-        apiSecret: 'api secret'
-      })
-
-      return {
-        orderHistory: orderHistoryStub
-      }
-    })
-  },
-  '../../../util/get_last_active': {
-    getLastActive: sandbox.spy(() => 0),
-    getOrderHistory: sandbox.spy(async () => [])
   }
 })
 
@@ -105,8 +86,10 @@ describe('AlgoWorker', () => {
     it('should create the host and register the events', async () => {
       const aoDetails = {
         gid: 'gid',
+        alias: 'name',
         algoID: 'algo id',
         createdAt: 1633936704466,
+        lastActive: 1633936704466,
         state: JSON.stringify({
           name: 'name',
           args: { symbol: 'tBTCUSD' },
@@ -114,7 +97,6 @@ describe('AlgoWorker', () => {
         })
       }
       AOHostStub.connect.resolves(authResponse)
-      orderHistoryStub.resolves([])
       algoDB.AlgoOrder.find.resolves([aoDetails])
 
       const algoWorker = new AlgoWorker(settings, algoOrders, bcast, algoDB, logAlgoOpts, marketData, mode)
@@ -151,8 +133,8 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', mode, [{
         ..._omit(aoDetails, 'state'),
         ...JSON.parse(aoDetails.state),
-        lastActive: 0,
-        alias: undefined
+        lastActive: aoDetails.lastActive,
+        alias: aoDetails.alias
       }]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
@@ -233,12 +215,13 @@ describe('AlgoWorker', () => {
     const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
-      alias: 'alias',
+      alias: 'name',
       name: 'name',
       label: 'label',
       args: {},
       i18n: {},
       createdAt,
+      lastActive: createdAt,
       gid,
       id
     }

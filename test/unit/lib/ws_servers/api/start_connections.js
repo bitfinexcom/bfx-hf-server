@@ -104,6 +104,7 @@ describe('ConnectionManager', () => {
     createStrategyManager.returns(strategyManager)
     session.getMetricsClient.returns(metricsClient)
     session.getCredentials.returns({ apiKey, apiSecret })
+    session.getAlgoWorker.returns(algoWorker)
   })
 
   const manager = proxyquire('ws_servers/api/start_connections', {
@@ -156,7 +157,8 @@ describe('ConnectionManager', () => {
       ws: filteredWs,
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
-      mode
+      mode,
+      session
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -192,7 +194,8 @@ describe('ConnectionManager', () => {
       ws: filteredWs,
       dms: false,
       sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
-      mode
+      mode,
+      session: paperSession
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -270,7 +273,8 @@ describe('ConnectionManager', () => {
       ws: filteredWs,
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
-      mode
+      mode,
+      session
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
