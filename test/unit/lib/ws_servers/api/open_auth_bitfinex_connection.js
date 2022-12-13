@@ -32,6 +32,19 @@ describe('openAuthBitfinexConnection', () => {
   const restURL = 'rest url'
   const isPaper = false
   const mode = 'main'
+
+  const updateLastActiveStub = sandbox.stub()
+  const sessionId = 'session_id'
+  const algoWorker = {
+    updateLastActive: async (gId, lastActive) => updateLastActiveStub(gId, lastActive)
+  }
+  const session = {
+    id: sessionId,
+    mode,
+    isPaper,
+    getAlgoWorker: sandbox.stub()
+  }
+
   const args = {
     ws,
     apiKey,
@@ -42,7 +55,8 @@ describe('openAuthBitfinexConnection', () => {
     wsURL,
     restURL,
     isPaper,
-    mode
+    mode,
+    session
   }
 
   let onData
@@ -54,6 +68,10 @@ describe('openAuthBitfinexConnection', () => {
   bfxClient.onData = (fn) => {
     onData = fn
   }
+
+  beforeEach(() => {
+    session.getAlgoWorker.returns(algoWorker)
+  })
 
   const openAuthBitfinexConnection = proxyquire('ws_servers/api/open_auth_bitfinex_connection', {
     '../../exchange_clients/bitfinex': spy((args) => {
@@ -92,6 +110,15 @@ describe('openAuthBitfinexConnection', () => {
   })
 
   describe('data on main mode', () => {
+    before(() => {
+      openAuthBitfinexConnection({ ...args, isPaper: false })
+    })
+
+    beforeEach(() => {
+      session.getAlgoWorker.returns(algoWorker)
+      updateLastActiveStub.resolves()
+    })
+
     it('ws', () => {
       const msgData = [
         ['AAA', 'exchange', 8288.037842747914, null],
@@ -155,6 +182,7 @@ describe('openAuthBitfinexConnection', () => {
 
       onData(['on', msgData])
 
+      assert.calledWithExactly(updateLastActiveStub, msgData[1], msgData[5])
       assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', transformOrder(msgData)]))
     })
 
@@ -167,6 +195,7 @@ describe('openAuthBitfinexConnection', () => {
 
       onData(['ou', msgData])
 
+      assert.calledWithExactly(updateLastActiveStub, msgData[1], msgData[5])
       assert.calledWithExactly(ws.send, JSON.stringify(['data.order', 'bitfinex', transformOrder(msgData)]))
     })
 
@@ -179,6 +208,7 @@ describe('openAuthBitfinexConnection', () => {
 
       onData(['oc', msgData])
 
+      assert.calledWithExactly(updateLastActiveStub, msgData[1], msgData[5])
       assert.calledWithExactly(ws.send, JSON.stringify(['data.order.close', 'bitfinex', transformOrder(msgData)]))
     })
 

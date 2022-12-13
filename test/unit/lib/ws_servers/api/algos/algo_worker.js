@@ -86,8 +86,10 @@ describe('AlgoWorker', () => {
     it('should create the host and register the events', async () => {
       const aoDetails = {
         gid: 'gid',
+        alias: 'name',
         algoID: 'algo id',
         createdAt: 1633936704466,
+        lastActive: 1633936704466,
         state: JSON.stringify({
           name: 'name',
           args: { symbol: 'tBTCUSD' },
@@ -130,7 +132,9 @@ describe('AlgoWorker', () => {
       // send active aos
       assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', mode, [{
         ..._omit(aoDetails, 'state'),
-        ...JSON.parse(aoDetails.state)
+        ...JSON.parse(aoDetails.state),
+        lastActive: aoDetails.lastActive,
+        alias: aoDetails.alias
       }]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
@@ -211,12 +215,13 @@ describe('AlgoWorker', () => {
     const createdAt = 1633936704466
     const serialized = { gid }
     const uiData = {
-      alias: 'alias',
+      alias: 'name',
       name: 'name',
       label: 'label',
       args: {},
       i18n: {},
       createdAt,
+      lastActive: createdAt,
       gid,
       id
     }

@@ -96,7 +96,8 @@ describe('on order history', () => {
         }
       },
       label: 'Ping/Pong | 2:2 @ 2 -> 2 ',
-      aff_code: 'xZvWHMNR'
+      aff_code: 'xZvWHMNR',
+      lastActive: 1648044964000
     },
     _lastAmount: 2
   }
