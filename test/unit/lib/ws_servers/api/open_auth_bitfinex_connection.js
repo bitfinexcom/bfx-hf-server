@@ -164,8 +164,7 @@ describe('openAuthBitfinexConnection', () => {
 
     it('os', () => {
       const msgData = [
-        [89151302196, null, 1647033342683, 'tAAABBB', 1647033342683, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null, { scope: 'app' }],
-        [89151302197, null, 1647033350546, 'tAAABBB', 1647033350546, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 80, 0, 0, 0, false, false, false, false, false, null, { scope: 'app' }]
+        { id: 110059482899, gid: 'gid', cid: 1671052469258, symbol: 'tTESTBTC:TESTUSD', mtsCreate: 1671052572815, mtsUpdate: 1671052572816, amount: 1, amountOrig: 1, type: 'EXCHANGE LIMIT', mtsTIF: null, flags: 0, status: 'ACTIVE', price: 1, priceAvg: 0, priceTrailing: 0, priceAuxLimit: 0, hidden: false, meta: { scope: 'app', aff_code: 'xZvWHMNR' }, postonly: false, oco: false, reduceonly: false, visibleOnHit: false, lev: null }
       ]
 
       onData(['os', msgData])
@@ -175,7 +174,7 @@ describe('openAuthBitfinexConnection', () => {
 
     it('on', () => {
       const msgData = [
-        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        89150813968, 'gid', 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
         null, null, null, 0, 'ACTIVE', null, null, 25000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
         'API>BFX', null, null, { scope: 'app' }
       ]
@@ -188,7 +187,7 @@ describe('openAuthBitfinexConnection', () => {
 
     it('ou', () => {
       const msgData = [
-        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        89150813968, 'gid', 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
         null, null, null, 0, 'ACTIVE', null, null, 26000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
         'API>BFX', null, null, { scope: 'app' }
       ]
@@ -201,7 +200,7 @@ describe('openAuthBitfinexConnection', () => {
 
     it('oc', () => {
       const msgData = [
-        89150813968, null, 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
+        89150813968, 'gid', 1647033262187, 'tAAABBB', 1654443352359, 1654443352361, 2, 2, 'EXCHANGE LIMIT',
         null, null, null, 0, 'CANCELED', null, null, 26000, 0, 0, 0, null, null, null, 0, 0, null, null, null,
         'API>BFX', null, null, { scope: 'app' }
       ]
