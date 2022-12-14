@@ -7,7 +7,7 @@ const { spy, assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
 const EventEmitter = require('events')
 const { WS_CONNECTION } = require('../../../../../lib/constants')
-const transformOrder = require('../../../../../lib/exchange_clients/bitfinex/transformers/order')
+const { transformOrder } = require('../../../../../lib/exchange_clients/bitfinex/transformers/order')
 
 describe('openAuthBitfinexConnection', () => {
   const sandbox = createSandbox()
