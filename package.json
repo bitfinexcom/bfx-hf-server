@@ -1,6 +1,6 @@
 {
   "name": "bfx-hf-server",
-  "version": "8.3.0",
+  "version": "9.0.0",
   "description": "HF server bundle",
   "author": "Bitfinex",
   "license": "Apache-2.0",
