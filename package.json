@@ -44,7 +44,8 @@
     "sha.js": "^2.4.11",
     "sprintf-js": "^1.1.2",
     "uuid": "^8.3.2",
-    "ws": "^8.2.1"
+    "ws": "^8.2.1",
+    "joi": "^17.4.2"
   },
   "scripts": {
     "start": "NODE_PATH=lib node examples/server.js",
