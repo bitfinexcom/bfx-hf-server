@@ -24,7 +24,10 @@ const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
     AOHost: sandbox.spy((args) => {
       AOHostConstructor(args)
       return AOHostStub
-    })
+    }),
+    Recurring: {
+      id: 'bfx-recurring'
+    }
   }
 })
 
