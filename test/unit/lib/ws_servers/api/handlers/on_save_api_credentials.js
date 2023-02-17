@@ -75,7 +75,8 @@ describe('on save api credentials', () => {
     authControl: 'auth control',
     closeMode: sandbox.stub(),
     authenticateSession: sandbox.stub(),
-    setCredentialsForMode: sandbox.stub()
+    setCredentialsForMode: sandbox.stub(),
+    sendDataToMetricsServer: sandbox.stub()
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -117,6 +118,7 @@ describe('on save api credentials', () => {
 
     assert.calledWithExactly(stubVerifyPassword, server.db, ws.authPassword)
     assert.calledWithExactly(stubNotifyError, ws, 'Invalid password', ['invalidPassword'])
+    assert.calledWithExactly(ws.sendDataToMetricsServer, ['app_login_failed', '[on_save_api_credentials] Invalid password'])
     assert.notCalled(stubEncryptApiCred)
   })
 
