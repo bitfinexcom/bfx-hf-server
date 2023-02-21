@@ -24,7 +24,10 @@ const AlgoWorker = proxyquire('ws_servers/api/algos/algo_worker', {
     AOHost: sandbox.spy((args) => {
       AOHostConstructor(args)
       return AOHostStub
-    })
+    }),
+    Recurring: {
+      id: 'bfx-recurring'
+    }
   }
 })
 
@@ -255,7 +258,7 @@ describe('AlgoWorker', () => {
           'notify',
           'success',
           `Started AO ${uiData.alias} on Bitfinex`,
-          { key: 'startedAO', props: { alias: uiData.alias, name: 'name', target: 'Bitfinex' } }
+          { key: 'startedAO', props: { alias: uiData.alias, target: 'Bitfinex' } }
         ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
@@ -283,7 +286,7 @@ describe('AlgoWorker', () => {
           'notify',
           'success',
           `Started AO ${uiData.alias} on Bitfinex`,
-          { key: 'startedAO', props: { alias: uiData.alias, name: 'name', target: 'Bitfinex' } }
+          { key: 'startedAO', props: { alias: uiData.alias, target: 'Bitfinex' } }
         ])
         assert.calledWithExactly(WsStub.secondCall, ['data.ao', 'bitfinex', mode, { ...uiData }])
         expect(returnedGid).to.eq(gid)
