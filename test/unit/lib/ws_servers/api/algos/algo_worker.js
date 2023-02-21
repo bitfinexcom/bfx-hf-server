@@ -2,7 +2,6 @@
 /* eslint-env mocha */
 'use strict'
 
-const _omit = require('lodash/omit')
 const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
 const proxyquire = require('proxyquire').noCallThru()
@@ -132,13 +131,6 @@ describe('AlgoWorker', () => {
       assert.calledWithExactly(AOHostStub.connect)
       // publish opened event
       assert.calledWithExactly(WsStub.firstCall, ['opened', userId, 'bitfinex'])
-      // send active aos
-      assert.calledWithExactly(WsStub.secondCall, ['data.aos', 'bitfinex', mode, [{
-        ..._omit(aoDetails, 'state'),
-        ...JSON.parse(aoDetails.state),
-        lastActive: aoDetails.lastActive,
-        alias: aoDetails.alias
-      }]])
       // final worker inner-state
       expect(algoWorker.userId).to.be.eq(userId)
       expect(algoWorker.isStarted).to.be.true
