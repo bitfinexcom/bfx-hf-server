@@ -43,6 +43,7 @@ describe('ConnectionManager', () => {
   const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
+  const algoDB = sandbox.stub()
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const wsURL = 'ws url'
@@ -54,7 +55,8 @@ describe('ConnectionManager', () => {
     db,
     d,
     wsURL,
-    restURL
+    restURL,
+    algoDB
   }
   const session = {
     id: sessionId,
@@ -158,7 +160,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
-      session
+      session,
+      algoDB
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -195,7 +198,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
       mode,
-      session: paperSession
+      session: paperSession,
+      algoDB
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -274,7 +278,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
-      session
+      session,
+      algoDB
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
