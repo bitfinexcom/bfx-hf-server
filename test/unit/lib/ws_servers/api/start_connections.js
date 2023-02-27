@@ -5,6 +5,7 @@
 const proxyquire = require('proxyquire').noCallThru()
 const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
+const { WD_PACKET_DELAY } = require('../../../../../lib/constants')
 
 describe('ConnectionManager', () => {
   const sandbox = createSandbox()
@@ -43,18 +44,21 @@ describe('ConnectionManager', () => {
   const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
+  const serverGetUserSettings = sandbox.stub()
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const wsURL = 'ws url'
   const restURL = 'rest url'
   const dmsScope = 'scope'
   const mode = 'main'
+  const packetWDDelay = WD_PACKET_DELAY
   const isPaper = true
   const server = {
     db,
     d,
     wsURL,
-    restURL
+    restURL,
+    getUserSettings: serverGetUserSettings
   }
   const session = {
     id: sessionId,
@@ -95,7 +99,8 @@ describe('ConnectionManager', () => {
   })
 
   beforeEach(() => {
-    getUserSettings.resolves({ dms: true })
+    getUserSettings.resolves({ dms: true, packetWDDelay })
+    serverGetUserSettings.resolves({ dms: true, packetWDDelay })
     openDmsSub.resolves()
     createClient.returns(bfxClient)
     createDmsControl.returns(dmsControl)
@@ -158,7 +163,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
-      session
+      session,
+      packetWDDelay
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -195,7 +201,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
       mode,
-      session: paperSession
+      session: paperSession,
+      packetWDDelay
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -274,7 +281,8 @@ describe('ConnectionManager', () => {
       dms: false,
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
-      session
+      session,
+      packetWDDelay
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)

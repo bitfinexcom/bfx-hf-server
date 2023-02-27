@@ -52,7 +52,8 @@ describe('AlgoWorker', () => {
     wsURL: 'ws url',
     restURL: 'rest url',
     signalTracerOpts,
-    mode
+    mode,
+    packetWDDelay: 30 * 1000
   }
   const algoOrders = []
   const bcast = WsStub
@@ -119,7 +120,8 @@ describe('AlgoWorker', () => {
           affiliateCode: settings.affiliateCode,
           wsURL: settings.wsURL,
           restURL: settings.restURL,
-          plugins: []
+          plugins: [],
+          packetWDDelay: settings.packetWDDelay
         },
         signalTracerOpts
       })

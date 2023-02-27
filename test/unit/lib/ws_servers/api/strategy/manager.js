@@ -95,7 +95,8 @@ describe('Strategy Manager', () => {
     dms,
     closeConnectionsDelay: 500,
     apiKey,
-    apiSecret
+    apiSecret,
+    packetWDDelay: WD_PACKET_DELAY
   }
   const bcast = WsStub
 
@@ -162,7 +163,7 @@ describe('Strategy Manager', () => {
 
       assert.calledWithExactly(WatchdogConstructor, {
         reconnectDelay: WD_RECONNECT_DELAY,
-        packetWDDelay: WD_PACKET_DELAY
+        packetWDDelay: settings.packetWDDelay
       })
     })
 
