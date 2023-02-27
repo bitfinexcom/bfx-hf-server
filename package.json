@@ -30,7 +30,7 @@
     "bfx-hf-strategy": "git+https://github.com/bitfinexcom/bfx-hf-strategy.git#v2.1.1",
     "bfx-hf-strategy-exec": "git+https://github.com/bitfinexcom/bfx-hf-strategy-exec.git#v2.3.2",
     "bfx-hf-strategy-perf": "git+https://github.com/bitfinexcom/bfx-hf-strategy-perf.git#v3.0.1",
-    "bfx-hf-ui-config": "git+https://github.com/bitfinexcom/bfx-hf-ui-config#v1.6.0",
+    "bfx-hf-ui-config": "git+https://github.com/dmytroshch/bfx-hf-ui-config#update-settings",
     "bfx-hf-util": "git+https://github.com/bitfinexcom/bfx-hf-util.git#v1.0.12",
     "bignumber.js": "^9.0.0",
     "bluebird": "^3.7.2",
