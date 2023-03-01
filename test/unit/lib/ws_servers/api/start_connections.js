@@ -44,7 +44,6 @@ describe('ConnectionManager', () => {
   const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
-  const serverGetUserSettings = sandbox.stub()
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const wsURL = 'ws url'
@@ -53,12 +52,12 @@ describe('ConnectionManager', () => {
   const mode = 'main'
   const packetWDDelay = WD_PACKET_DELAY
   const isPaper = true
+  const settings = { dms: true, packetWDDelay }
   const server = {
     db,
     d,
     wsURL,
     restURL,
-    getUserSettings: serverGetUserSettings
   }
   const session = {
     id: sessionId,
@@ -99,12 +98,11 @@ describe('ConnectionManager', () => {
   })
 
   beforeEach(() => {
-    getUserSettings.resolves({ dms: true, packetWDDelay })
-    serverGetUserSettings.resolves({ dms: true, packetWDDelay })
+    getUserSettings.resolves(settings)
     openDmsSub.resolves()
     createClient.returns(bfxClient)
     createDmsControl.returns(dmsControl)
-    createAlgoWorker.resolves(algoWorker)
+    createAlgoWorker.returns(algoWorker)
     createFilteredWs.returns(filteredWs)
     createStrategyManager.returns(strategyManager)
     session.getMetricsClient.returns(metricsClient)
@@ -137,12 +135,12 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
 
     assert.calledWithExactly(session.getAlgoWorker)
-    assert.calledWithExactly(createAlgoWorker, server, session, filteredWs)
+    assert.calledWithExactly(createAlgoWorker, server, session, filteredWs, settings)
     assert.calledWithExactly(session.setAlgoWorker, algoWorker)
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, session, filteredWs, dmsScope, session.sendDataToMetricsServer)
+    assert.calledWithExactly(createStrategyManager, server, session, filteredWs, dmsScope, settings, session.sendDataToMetricsServer)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
