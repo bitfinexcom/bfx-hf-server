@@ -44,6 +44,7 @@ describe('ConnectionManager', () => {
   const sessionId = 'session_id'
   const db = sandbox.stub()
   const d = sandbox.stub()
+  const algoDB = sandbox.stub()
   const apiKey = 'api key'
   const apiSecret = 'api secret'
   const wsURL = 'ws url'
@@ -58,6 +59,7 @@ describe('ConnectionManager', () => {
     d,
     wsURL,
     restURL,
+    algoDB
   }
   const session = {
     id: sessionId,
@@ -117,7 +119,6 @@ describe('ConnectionManager', () => {
     './factories/create_dms_control': createDmsControl,
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
-    // './factories/create_metrics_client': createMetricsClient,
     './snapshots/send_all': resendSnapshots,
     '../../util/ws/send_error': sendError,
     '../../util/ws/send': send
@@ -162,6 +163,7 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
       session,
+      algoDB,
       packetWDDelay
     })
     assert.calledWithExactly(session.setClient, bfxClient)
@@ -200,6 +202,7 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
       mode,
       session: paperSession,
+      algoDB,
       packetWDDelay
     })
 
@@ -280,6 +283,7 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
       session,
+      algoDB,
       packetWDDelay
     })
 
