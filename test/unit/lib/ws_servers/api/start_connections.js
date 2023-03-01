@@ -5,6 +5,7 @@
 const proxyquire = require('proxyquire').noCallThru()
 const { assert, createSandbox } = require('sinon')
 const { expect } = require('chai')
+const { WD_PACKET_DELAY } = require('../../../../../lib/constants')
 
 describe('ConnectionManager', () => {
   const sandbox = createSandbox()
@@ -50,7 +51,9 @@ describe('ConnectionManager', () => {
   const restURL = 'rest url'
   const dmsScope = 'scope'
   const mode = 'main'
+  const packetWDDelay = WD_PACKET_DELAY
   const isPaper = true
+  const settings = { dms: true, packetWDDelay }
   const server = {
     db,
     d,
@@ -97,11 +100,11 @@ describe('ConnectionManager', () => {
   })
 
   beforeEach(() => {
-    getUserSettings.resolves({ dms: true })
+    getUserSettings.resolves(settings)
     openDmsSub.resolves()
     createClient.returns(bfxClient)
     createDmsControl.returns(dmsControl)
-    createAlgoWorker.resolves(algoWorker)
+    createAlgoWorker.returns(algoWorker)
     createFilteredWs.returns(filteredWs)
     createStrategyManager.returns(strategyManager)
     session.getMetricsClient.returns(metricsClient)
@@ -116,7 +119,6 @@ describe('ConnectionManager', () => {
     './factories/create_dms_control': createDmsControl,
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
-    // './factories/create_metrics_client': createMetricsClient,
     './snapshots/send_all': resendSnapshots,
     '../../util/ws/send_error': sendError,
     '../../util/ws/send': send
@@ -134,12 +136,12 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
 
     assert.calledWithExactly(session.getAlgoWorker)
-    assert.calledWithExactly(createAlgoWorker, server, session, filteredWs)
+    assert.calledWithExactly(createAlgoWorker, server, session, filteredWs, settings)
     assert.calledWithExactly(session.setAlgoWorker, algoWorker)
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
 
     assert.calledWithExactly(session.getStrategyManager)
-    assert.calledWithExactly(createStrategyManager, server, session, filteredWs, dmsScope, session.sendDataToMetricsServer)
+    assert.calledWithExactly(createStrategyManager, server, session, filteredWs, dmsScope, settings, session.sendDataToMetricsServer)
     assert.calledWithExactly(session.setStrategyManager, strategyManager)
 
     assert.calledWithExactly(session.getMetricsClient)
@@ -161,7 +163,8 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
       session,
-      algoDB
+      algoDB,
+      packetWDDelay
     })
     assert.calledWithExactly(session.setClient, bfxClient)
 
@@ -199,7 +202,8 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: paperSession.sendDataToMetricsServer,
       mode,
       session: paperSession,
-      algoDB
+      algoDB,
+      packetWDDelay
     })
 
     expect(manager.credentials.paper.apiKey).to.be.eq(apiKey)
@@ -279,7 +283,8 @@ describe('ConnectionManager', () => {
       sendDataToMetricsServer: session.sendDataToMetricsServer,
       mode,
       session,
-      algoDB
+      algoDB,
+      packetWDDelay
     })
 
     expect(manager.credentials.main.apiKey).to.be.eq(apiKey)
