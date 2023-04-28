@@ -68,7 +68,8 @@ describe('on save api credentials', () => {
     hostedURL
   }
   const algoWorker = {
-    updateAuthArgs: sandbox.stub()
+    updateAuthArgs: sandbox.stub(),
+    closeActiveAlgosOnHost: sandbox.stub()
   }
   const ws = {
     authPassword: 'secret',
@@ -76,7 +77,8 @@ describe('on save api credentials', () => {
     closeMode: sandbox.stub(),
     authenticateSession: sandbox.stub(),
     setCredentialsForMode: sandbox.stub(),
-    sendDataToMetricsServer: sandbox.stub()
+    sendDataToMetricsServer: sandbox.stub(),
+    getAlgoWorker: () => algoWorker
   }
   const authToken = 'authToken'
   const apiKey = 'apiKey'
@@ -158,6 +160,7 @@ describe('on save api credentials', () => {
       ['encryptedApiCredentialsSavedFor', { target: 'Bitfinex' }]
     )
     assert.calledWithExactly(stubWsSend, ws, ['data.api_credentials.configured', 'bitfinex'])
+    assert.calledOnce(algoWorker.closeActiveAlgosOnHost)
     assert.calledWithExactly(ws.setCredentialsForMode, formSent, apiKey, apiSecret)
     assert.notCalled(ws.authenticateSession)
     assert.notCalled(stubStartConnections)
@@ -169,6 +172,7 @@ describe('on save api credentials', () => {
 
     await Handler(server, ws, msg)
 
+    assert.calledOnce(algoWorker.closeActiveAlgosOnHost)
     assert.calledWithExactly(ws.closeMode, mode)
     assert.calledWithExactly(ws.authenticateSession, {
       apiKey,
