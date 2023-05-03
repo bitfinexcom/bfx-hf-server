@@ -274,8 +274,8 @@ describe('openAuthBitfinexConnection', () => {
 
     it('os', () => {
       const msgData = [
-        [89151302196, null, 1647033342683, 'tAAABBB', 1647033342683, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null],
-        [89151302197, null, 1647033350546, 'tAAABBB', 1647033350546, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 80, 0, 0, 0, false, false, false, false, false, null]
+        [89151302196, null, 1647033342683, 'tTESTBTC:TESTUSD', 1647033342683, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null],
+        [89151302197, null, 1647033350546, 'tTESTBTC:TESTUSD', 1647033350546, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 80, 0, 0, 0, false, false, false, false, false, null]
       ]
 
       onData(['os', msgData])
@@ -284,7 +284,7 @@ describe('openAuthBitfinexConnection', () => {
     })
 
     it('on', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null]
+      const msgData = [89150813968, null, 1647033262187, 'tTESTBTC:TESTUSD', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 50, 0, 0, 0, false, false, false, false, false, null]
 
       onData(['on', msgData])
 
@@ -292,7 +292,7 @@ describe('openAuthBitfinexConnection', () => {
     })
 
     it('ou', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 60, 0, 0, 0, false, false, false, false, false, null]
+      const msgData = [89150813968, null, 1647033262187, 'tTESTBTC:TESTUSD', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'ACTIVE', 60, 0, 0, 0, false, false, false, false, false, null]
 
       onData(['ou', msgData])
 
@@ -300,7 +300,7 @@ describe('openAuthBitfinexConnection', () => {
     })
 
     it('oc', () => {
-      const msgData = [89150813968, null, 1647033262187, 'tAAABBB', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'CANCELED', 60, 0, 0, 0, false, false, false, false, false, null]
+      const msgData = [89150813968, null, 1647033262187, 'tTESTBTC:TESTUSD', 1647033262188, 2, 2, 'EXCHANGE LIMIT', null, 'CANCELED', 60, 0, 0, 0, false, false, false, false, false, null]
 
       onData(['oc', msgData])
 
