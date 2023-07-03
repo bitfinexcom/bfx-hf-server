@@ -37,8 +37,7 @@ describe('ConnectionManager', () => {
     auth: (args) => {
       metricsClient.isAuthenticated = true
       return authMetricsClientStub(args)
-    },
-    sendAuidInfo: sandbox.stub()
+    }
   }
 
   const sessionId = 'session_id'
@@ -221,7 +220,6 @@ describe('ConnectionManager', () => {
     await manager.start(server, session)
 
     assert.calledWithExactly(dmsControl.updateStatus, true)
-    assert.calledWithExactly(metricsClient.sendAuidInfo)
     assert.notCalled(createAlgoWorker)
     assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
