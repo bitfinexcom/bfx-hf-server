@@ -31,7 +31,8 @@ const ManagerStub = {
   onceWS: onceWsStub,
   openWS: sandbox.stub(),
   closeAllSockets: closeAllSocketStub,
-  withDataSocket: withDataSocketStub
+  withDataSocket: withDataSocketStub,
+  withAuthSocket: sandbox.stub()
 }
 
 const StrategyExecutionStub = {
