@@ -79,7 +79,8 @@ describe('DmsRemoteControl', () => {
         token,
         dms: true,
         dmsScope,
-        noInteraction: true
+        noInteraction: true,
+        connectionTimeout: 30
       }))
 
       wsConn.emit('message', JSON.stringify(['auth.user_id']))
