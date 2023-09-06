@@ -5,7 +5,8 @@
     "TWAP",
     "AccumulateDistribute",
     "MACrossover",
-    "Bracket"
+    "Bracket",
+    "Recurring"
   ],
   "auth": {
     "tokenTtlInSeconds": 18000

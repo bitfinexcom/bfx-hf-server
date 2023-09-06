@@ -116,7 +116,7 @@ describe('on order history', () => {
     await handler(server, ws, msg)
 
     assert.calledWithExactly(isAuthorizedStub, ws, authToken)
-    assert.calledWithExactly(orderHistoryStub, symbol, start, end, limit)
+    assert.calledWithExactly(orderHistoryStub, { symbol, start, end, limit })
     assert.calledWithExactly(sendStub, ws, ['data.order_history', [order]])
   })
 
@@ -127,7 +127,7 @@ describe('on order history', () => {
     await handler(server, ws, msg)
 
     assert.calledWithExactly(isAuthorizedStub, ws, authToken)
-    assert.calledWithExactly(orderHistoryStub, symbol, start, end, limit)
+    assert.calledWithExactly(orderHistoryStub, { symbol, start, end, limit })
     assert.calledWithExactly(sendStub, ws, ['data.order_history', []])
   })
 
@@ -140,7 +140,7 @@ describe('on order history', () => {
     await handler(server, paperModeWs, msg)
 
     assert.calledWithExactly(isAuthorizedStub, paperModeWs, authToken)
-    assert.calledWithExactly(orderHistoryStub, symbol, start, end, limit)
+    assert.calledWithExactly(orderHistoryStub, { symbol, start, end, limit })
     assert.calledWithExactly(sendStub, paperModeWs, ['data.order_history', [tBtcOrder]])
   })
 })
