@@ -4,5 +4,5 @@
     "backtest": true,
     "live_execution": true
   },
-  "recurring_AOs": true
+  "recurring_AOs": false
 }
