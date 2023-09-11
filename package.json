@@ -1,6 +1,6 @@
 {
   "name": "bfx-hf-server",
-  "version": "9.9.1",
+  "version": "9.9.2",
   "description": "HF server bundle",
   "author": "Bitfinex",
   "license": "Apache-2.0",
@@ -22,7 +22,7 @@
     "bfx-api-node-core": "git+https://github.com/bitfinexcom/bfx-api-node-core.git#v1.6.1",
     "bfx-api-node-plugin-wd": "^1.0.4",
     "bfx-api-node-rest": "5.5.0",
-    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo#v4.21.2",
+    "bfx-hf-algo": "git+https://github.com/bitfinexcom/bfx-hf-algo#v4.21.3",
     "bfx-hf-ext-plugin-dummy": "github:bitfinexcom/bfx-hf-ext-plugin-dummy#v1.0.4",
     "bfx-hf-indicators": "git+https://github.com/bitfinexcom/bfx-hf-indicators.git#v2.2.0",
     "bfx-hf-models": "git+https://github.com/bitfinexcom/bfx-hf-models.git#v4.0.0",
