@@ -132,7 +132,7 @@ describe('ConnectionManager', () => {
     assert.notCalled(dmsControl.updateStatus)
     assert.calledWithExactly(createDmsControl, server)
     assert.calledWithExactly(session.setDmsControl, dmsControl)
-    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
+    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope, packetWDDelay })
 
     assert.calledWithExactly(session.getAlgoWorker)
     assert.calledWithExactly(createAlgoWorker, server, session, filteredWs, settings)

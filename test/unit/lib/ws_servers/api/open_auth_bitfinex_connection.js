@@ -65,6 +65,7 @@ describe('openAuthBitfinexConnection', () => {
   bfxClient.openWS = sandbox.stub()
   bfxClient.openSocket = sandbox.stub()
   bfxClient.getUserInfo = sandbox.stub()
+  bfxClient.hasPacketDelayTimedout = sandbox.stub().returns(true)
   bfxClient.onData = (fn) => {
     onData = fn
   }
