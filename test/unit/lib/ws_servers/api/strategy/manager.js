@@ -40,7 +40,8 @@ const StrategyExecutionStub = {
   execute: sandbox.stub(),
   stopExecution: sandbox.stub(),
   generateResults: sandbox.stub(),
-  removeAllListeners: sandbox.stub()
+  removeAllListeners: sandbox.stub(),
+  setWallets: sandbox.stub()
 }
 
 const PriceFeedStub = {
