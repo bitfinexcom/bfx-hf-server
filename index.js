@@ -18,7 +18,6 @@ const { RESTv2 } = require('bfx-api-node-rest')
 module.exports = async ({
   bfxRestURL,
   bfxWSURL,
-  bfxHostedWsUrl,
   bfxMetricsWsUrl,
   os,
   releaseVersion,
@@ -58,7 +57,6 @@ module.exports = async ({
     port: wsServerPort,
     restURL: bfxRestURL,
     wsURL: bfxWSURL,
-    hostedURL: bfxHostedWsUrl,
     metricsServerURL: bfxMetricsWsUrl,
     os,
     releaseVersion,
