@@ -127,8 +127,7 @@ describe('AlgoWorker', () => {
       })
       // register events
       assert.calledWith(AOHostStub.on.firstCall, 'error')
-      assert.calledWith(AOHostStub.on.secondCall, 'meta:reload')
-      assert.calledWith(AOHostStub.on.thirdCall, 'ao:stopped')
+      assert.calledWith(AOHostStub.on.secondCall, 'ao:stopped')
       // connect
       assert.calledWithExactly(AOHostStub.connect)
       // publish opened event

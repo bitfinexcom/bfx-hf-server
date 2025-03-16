@@ -10,15 +10,6 @@ const { WD_PACKET_DELAY } = require('../../../../../lib/constants')
 describe('ConnectionManager', () => {
   const sandbox = createSandbox()
 
-  const openDmsSub = sandbox.stub()
-  const dmsControl = {
-    open: (args) => {
-      dmsControl.isOpen = true
-      return openDmsSub(args)
-    },
-    updateStatus: sandbox.stub()
-  }
-
   const startWorkerStub = sandbox.stub()
   const algoWorker = {
     start: (args) => {
@@ -67,8 +58,6 @@ describe('ConnectionManager', () => {
     isPaper,
     metricsClient,
     getCredentials: sandbox.stub(),
-    getDmsControl: sandbox.stub(),
-    setDmsControl: sandbox.stub(),
     getAlgoWorker: sandbox.stub(),
     setAlgoWorker: sandbox.stub(),
     getStrategyManager: sandbox.stub(),
@@ -85,7 +74,6 @@ describe('ConnectionManager', () => {
   const createClient = sandbox.stub()
   const getUserSettings = sandbox.stub()
   const createAlgoWorker = sandbox.stub()
-  const createDmsControl = sandbox.stub()
   const createFilteredWs = sandbox.stub()
   const createStrategyManager = sandbox.stub()
   const resendSnapshots = sandbox.stub()
@@ -100,9 +88,7 @@ describe('ConnectionManager', () => {
 
   beforeEach(() => {
     getUserSettings.resolves(settings)
-    openDmsSub.resolves()
     createClient.returns(bfxClient)
-    createDmsControl.returns(dmsControl)
     createAlgoWorker.returns(algoWorker)
     createFilteredWs.returns(filteredWs)
     createStrategyManager.returns(strategyManager)
@@ -115,7 +101,6 @@ describe('ConnectionManager', () => {
     './open_auth_bitfinex_connection': createClient,
     '../../util/user_settings': getUserSettings,
     './factories/create_algo_worker': createAlgoWorker,
-    './factories/create_dms_control': createDmsControl,
     './factories/created_filtered_ws': createFilteredWs,
     './factories/create_strategy_manager': createStrategyManager,
     './snapshots/send_all': resendSnapshots,
@@ -129,10 +114,6 @@ describe('ConnectionManager', () => {
     assert.calledWithExactly(createFilteredWs, session)
 
     assert.calledWithExactly(getUserSettings, db)
-    assert.notCalled(dmsControl.updateStatus)
-    assert.calledWithExactly(createDmsControl, server)
-    assert.calledWithExactly(session.setDmsControl, dmsControl)
-    assert.calledWithExactly(openDmsSub, { apiKey, apiSecret, dmsScope })
 
     assert.calledWithExactly(session.getAlgoWorker)
     assert.calledWithExactly(createAlgoWorker, server, session, filteredWs, settings)
@@ -210,7 +191,6 @@ describe('ConnectionManager', () => {
   })
 
   it('returns to previous mode', async () => {
-    session.getDmsControl.returns(dmsControl)
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
@@ -219,9 +199,7 @@ describe('ConnectionManager', () => {
 
     await manager.start(server, session)
 
-    assert.calledWithExactly(dmsControl.updateStatus, true)
     assert.notCalled(createAlgoWorker)
-    assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
@@ -231,7 +209,6 @@ describe('ConnectionManager', () => {
 
   it('disable dms', async () => {
     getUserSettings.resolves({ dms: false })
-    session.getDmsControl.returns(dmsControl)
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
@@ -240,9 +217,7 @@ describe('ConnectionManager', () => {
 
     await manager.start(server, session)
 
-    assert.calledWithExactly(dmsControl.updateStatus, false)
     assert.notCalled(createAlgoWorker)
-    assert.notCalled(openDmsSub)
     assert.notCalled(startWorkerStub)
     assert.notCalled(createClient)
     assert.notCalled(createStrategyManager)
@@ -251,7 +226,6 @@ describe('ConnectionManager', () => {
   it('update credentials', async () => {
     const apiSecret = 'new secret'
 
-    session.getDmsControl.returns(dmsControl)
     session.getAlgoWorker.returns(algoWorker)
     session.getClient.returns(bfxClient)
     session.getStrategyManager.returns(strategyManager)
@@ -262,8 +236,6 @@ describe('ConnectionManager', () => {
     await manager.start(server, session)
 
     assert.calledWithExactly(getUserSettings, db)
-    assert.calledWithExactly(dmsControl.updateStatus, true)
-    assert.notCalled(openDmsSub)
     assert.notCalled(createStrategyManager)
 
     assert.calledWithExactly(startWorkerStub, { apiKey, apiSecret, userId: 'HF_User' })
