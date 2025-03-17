@@ -1,8 +1,1 @@
-{
-  "strategy_editor": {
-    "docs": true,
-    "backtest": true,
-    "live_execution": true
-  },
-  "recurring_AOs": false
-}
+{}
